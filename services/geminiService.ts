@@ -1,35 +1,19 @@
-import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
-let chatSession: Chat | null = null;
 
-export const getChatSession = (): Chat => {
-  if (!chatSession) {
-    chatSession = ai.chats.create({
-      model: 'gemini-3-pro-preview',
-      config: {
-        systemInstruction: "You are 'Al', a knowledgeable and chill music enthusiast assistant for the 'Albumaldia' app. You help users discover music, explain genres, and discuss the albums featured on the site. Keep your responses concise, engaging, and musically literate.",
-      },
-    });
+
+export const generateAlbumDescription = async (artist: string, album: string): Promise<string> => {
+  try {
+    const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const prompt = `Write a short, engaging description (max 80 words) for the album "${album}" by "${artist}". Focus on its musical style, significance, and vibe. Don't use markdown headers.`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
+  } catch (error) {
+    console.error("Error generating description:", error);
+    return "Discover the unique sounds of this album. A journey waiting to be heard.";
   }
-  return chatSession;
-};
-
-export const sendMessageToGemini = async (message: string): Promise<AsyncIterable<string>> => {
-  const chat = getChatSession();
-  
-  // Create a generator to yield chunks of text
-  async function* generateResponse() {
-      const responseStream = await chat.sendMessageStream({ message });
-      
-      for await (const chunk of responseStream) {
-        const c = chunk as GenerateContentResponse;
-        if (c.text) {
-          yield c.text;
-        }
-      }
-  }
-
-  return generateResponse();
 };

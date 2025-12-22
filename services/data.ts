@@ -25,6 +25,9 @@ export interface User {
     stats: {
         followers: string;
         following: string;
+        streak?: number;
+        minutesListened?: number;
+        albumsListenedToday?: number;
     };
     badges: Badge[];
 }
@@ -58,7 +61,7 @@ export const MOCK_USERS: User[] = [
         avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCHArSSTfJSIcGf7QdNbMJihyEyltpS_FUOTMc8e2qFiY7ZLGiR4P4-QtZ8H1o7R0EJ7gWw1l4ID9IYd2ngubAzKxrXMq59p9Odk5XVaMwbUpMVlGJK3wrK0yLTLAoLTM4dh_JxsilE3bOSmSQjCexJEtKkzQFAjIfRpLpoFGy2Y1-EGF0KDyjteyDFaV3ZE-EOeHBxdeXnb9hFLRr7MoK996Rd6ro-rY-uInOtk_66Gpr-Xp6kpx_CIG47Y_yjby7A4qGG9FdY0m8',
         isOnline: true,
         isVerified: true,
-        stats: { followers: '1.2k', following: '850' },
+        stats: { followers: '1.2k', following: '850', streak: 12, minutesListened: 1240 },
         badges: getBadges(['early_adopter', 'vinyl_head', 'critic_lvl5', 'deep_diver'])
     },
     {
