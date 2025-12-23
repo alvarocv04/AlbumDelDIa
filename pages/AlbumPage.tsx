@@ -9,6 +9,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { generateAlbumDescription } from '../services/geminiService';
 import { Album } from '../types';
 import CommentsSection from '../components/CommentsSection';
+import LoginModal from '../components/LoginModal';
 
 const RatingComponent = ({
     icon,
@@ -70,6 +71,7 @@ const AlbumPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaved, setIsSaved] = useState(false);
     const [isListened, setIsListened] = useState(false);
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
     const [personalRating, setPersonalRating] = useState(0);
     const [artisticRating, setArtisticRating] = useState(0);
@@ -140,35 +142,32 @@ const AlbumPage: React.FC = () => {
     const handleSave = async () => {
         if (!id) return;
 
+        if (!currentUser) {
+            setIsLoginModalOpen(true);
+            return;
+        }
+
         const newSavedState = !isSaved;
         setIsSaved(newSavedState); // Optimistic update
 
-        if (currentUser) {
-            await toggleAlbumSave(currentUser.uid, id, newSavedState);
-        } else {
-            const saved = localStorage.getItem('savedAlbums');
-            let savedList = saved ? JSON.parse(saved) : [];
-            if (newSavedState) {
-                if (!savedList.includes(id)) savedList.push(id);
-            } else {
-                savedList = savedList.filter((savedId: string) => savedId !== id);
-            }
-            localStorage.setItem('savedAlbums', JSON.stringify(savedList));
-        }
+        await toggleAlbumSave(currentUser.uid, id, newSavedState);
     };
 
     const handleToggleListened = async () => {
         if (!id || !album) return;
 
+        if (!currentUser) {
+            setIsLoginModalOpen(true);
+            return;
+        }
+
         const newListenedState = !isListened;
         setIsListened(newListenedState); // Optimistic UI
 
-        if (currentUser) {
-            if (newListenedState) {
-                await markAlbumAsListened(currentUser.uid, id, album.duration_total_ms);
-            } else {
-                await unmarkAlbumAsListened(currentUser.uid, id, album.duration_total_ms);
-            }
+        if (newListenedState) {
+            await markAlbumAsListened(currentUser.uid, id, album.duration_total_ms);
+        } else {
+            await unmarkAlbumAsListened(currentUser.uid, id, album.duration_total_ms);
         }
     };
 
@@ -180,19 +179,16 @@ const AlbumPage: React.FC = () => {
     const handleRate = async (type: 'personal' | 'artistic', value: number) => {
         if (!id) return;
 
+        if (!currentUser) {
+            setIsLoginModalOpen(true);
+            return;
+        }
+
         // Optimistic Update
         if (type === 'personal') setPersonalRating(value);
         else setArtisticRating(value);
 
-        if (currentUser) {
-            await rateAlbum(currentUser.uid, id, type, value);
-        } else {
-            const savedRatings = localStorage.getItem('albumRatings');
-            const ratingsMap = savedRatings ? JSON.parse(savedRatings) : {};
-            if (!ratingsMap[id]) ratingsMap[id] = {};
-            ratingsMap[id][type] = value;
-            localStorage.setItem('albumRatings', JSON.stringify(ratingsMap));
-        }
+        await rateAlbum(currentUser.uid, id, type, value);
     };
 
     if (isLoading) {
@@ -371,6 +367,10 @@ const AlbumPage: React.FC = () => {
                     <CommentsSection albumId={id!} />
                 </div>
             </main>
+            <LoginModal
+                isOpen={isLoginModalOpen}
+                onClose={() => setIsLoginModalOpen(false)}
+            />
         </div>
     );
 };

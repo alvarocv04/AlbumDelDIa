@@ -8,6 +8,7 @@ import { getDailyAlbum } from '../services/albumService';
 import { Album, UserBadge, Badge } from '../types';
 import BadgeList from '../components/BadgeList';
 import BadgeModal from '../components/BadgeModal';
+import LoginModal from '../components/LoginModal';
 import { getAllBadges } from '../services/badgeService';
 
 const HomePage: React.FC = () => {
@@ -28,6 +29,7 @@ const HomePage: React.FC = () => {
     });
     const [allBadges, setAllBadges] = useState<Badge[]>([]);
     const [isBadgeModalOpen, setIsBadgeModalOpen] = useState(false);
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
 
     useEffect(() => {
@@ -66,8 +68,7 @@ const HomePage: React.FC = () => {
 
     const handleSaveAlbum = async () => {
         if (!currentUser) {
-            // Optional: Show login modal or alert
-            alert(t('library.login_required'));
+            setIsLoginModalOpen(true);
             return;
         }
         if (!dailyAlbum) return;
@@ -262,6 +263,10 @@ const HomePage: React.FC = () => {
                 onClose={() => setIsBadgeModalOpen(false)}
                 allBadges={allBadges}
                 userBadges={userStats.userBadges}
+            />
+            <LoginModal
+                isOpen={isLoginModalOpen}
+                onClose={() => setIsLoginModalOpen(false)}
             />
         </div>
     );

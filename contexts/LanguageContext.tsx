@@ -165,6 +165,8 @@ const translations = {
     'common.loading': 'Loading...',
     'common.access_denied': 'Access Denied',
     'common.unknown': 'Unknown',
+    'common.login_required': 'Login Required',
+    'common.login_required_desc': 'You need to be logged in to perform this action.',
 
     // Header
     'header.select_language': 'Select Language',
@@ -399,6 +401,8 @@ const translations = {
     'common.loading': 'Cargando...',
     'common.access_denied': 'Acceso Denegado',
     'common.unknown': 'Desconocido',
+    'common.login_required': 'Inicio de Sesión Requerido',
+    'common.login_required_desc': 'Necesitas iniciar sesión para realizar esta acción.',
 
     // Header
     'header.select_language': 'Seleccionar Idioma',

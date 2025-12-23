@@ -4,7 +4,7 @@ import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBArkwDsmLD8RE7olK5wk7WkNIsgVxSDPo",
-    authDomain: "albumaldia-1.firebaseapp.com",
+    authDomain: "albumdeldia.app",
     projectId: "albumaldia-1",
     storageBucket: "albumaldia-1.firebasestorage.app",
     messagingSenderId: "984458188806",
@@ -18,3 +18,6 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
+
+import { getPerformance } from "firebase/performance";
+export const perf = getPerformance(app);
