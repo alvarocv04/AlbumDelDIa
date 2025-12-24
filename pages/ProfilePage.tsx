@@ -493,10 +493,10 @@ const SavedAlbumCard: React.FC<{ albumId: string }> = ({ albumId }) => {
                 className="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-110 duration-500"
                 onLoad={(e) => (e.currentTarget.previousSibling as HTMLElement).style.display = 'none'}
             />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-            <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                <p className="text-white text-xs font-bold truncate">{album.title}</p>
-                <p className="text-white/80 text-[10px] truncate">{album.artist}</p>
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors z-10" />
+            <div className="absolute inset-x-0 bottom-0 p-4 pt-12 bg-gradient-to-t from-black/95 via-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                <p className="text-white text-sm font-bold leading-tight line-clamp-2 mb-1">{album.title}</p>
+                <p className="text-white/70 text-xs truncate">{album.artist}</p>
             </div>
         </a>
     );

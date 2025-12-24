@@ -122,3 +122,20 @@ export const deleteAlbum = async (albumId: string): Promise<boolean> => {
         return false;
     }
 };
+export const getDailyHistory = async (): Promise<{ date: string; album: Album }[]> => {
+    try {
+        const historyRef = collection(db, 'daily_history');
+        const snapshot = await getDocs(historyRef);
+
+        const history = snapshot.docs.map(doc => ({
+            date: doc.id,
+            album: doc.data() as Album
+        }));
+
+        // Sort by date descending
+        return history.sort((a, b) => b.date.localeCompare(a.date));
+    } catch (error) {
+        console.error("Error fetching daily history:", error);
+        return [];
+    }
+};

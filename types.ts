@@ -70,6 +70,7 @@ export interface DBUser {
   savedAlbums: string[];
   ratings: Record<string, { personal: number; artistic: number }>;
   history: string[];
+  listenedTracks: Record<string, string[]>; // Map of albumId -> array of track IDs
   createdAt: any;
   stats: UserStats;
   badges: UserBadge[];

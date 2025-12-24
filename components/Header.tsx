@@ -96,12 +96,19 @@ const Header: React.FC = () => {
                     </Link>
                     <nav className="hidden md:flex items-center gap-9 ml-8">
                         <NavLink to="/" active={location.pathname === '/'}>{t('nav.home')}</NavLink>
+                        <NavLink to="/calendar" active={location.pathname === '/calendar'}>{t('nav.calendar')}</NavLink>
                         <NavLink to="/friends" active={location.pathname === '/friends'}>{t('nav.community')}</NavLink>
                         <NavLink to="/details" active={location.pathname === '/details'}>{t('nav.library')}</NavLink>
-                        <NavLink to="/summary" active={location.pathname === '/summary'}>{t('nav.wrapped')}</NavLink>
                     </nav>
                 </div>
                 <div className="flex items-center justify-end gap-2 sm:gap-4">
+                    <Link
+                        to="/faq"
+                        className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 dark:bg-surface-dark hover:bg-slate-200 dark:hover:bg-border-dark transition-colors mr-2"
+                        title={t('faq.title')}
+                    >
+                        <span className="material-symbols-outlined text-[20px]">help</span>
+                    </Link>
                     <button
                         onClick={toggleTheme}
                         className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 dark:bg-surface-dark hover:bg-slate-200 dark:hover:bg-border-dark transition-colors"
@@ -185,6 +192,10 @@ const Header: React.FC = () => {
                             <span className="material-symbols-outlined">home</span>
                             {t('nav.home')}
                         </Link>
+                        <Link to="/calendar" className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${location.pathname === '/calendar' ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5'}`}>
+                            <span className="material-symbols-outlined">calendar_today</span>
+                            {t('nav.calendar')}
+                        </Link>
                         <Link to="/friends" className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${location.pathname === '/friends' ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5'}`}>
                             <span className="material-symbols-outlined">group</span>
                             {t('nav.community')}
@@ -192,10 +203,6 @@ const Header: React.FC = () => {
                         <Link to="/details" className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${location.pathname === '/details' ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5'}`}>
                             <span className="material-symbols-outlined">library_music</span>
                             {t('nav.library')}
-                        </Link>
-                        <Link to="/summary" className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${location.pathname === '/summary' ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5'}`}>
-                            <span className="material-symbols-outlined">bar_chart</span>
-                            {t('nav.wrapped')}
                         </Link>
                     </nav>
                 </div>

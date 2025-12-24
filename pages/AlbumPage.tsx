@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
-import { toggleAlbumSave, rateAlbum, getUserUserData, markAlbumAsListened, unmarkAlbumAsListened } from '../services/userService';
+import { toggleAlbumSave, rateAlbum, getUserUserData, markAlbumAsListened, unmarkAlbumAsListened, markTrackAsListened, unmarkTrackAsListened, getListenedTracksForAlbum } from '../services/userService';
 import { db } from '../services/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { generateAlbumDescription } from '../services/geminiService';
@@ -75,6 +75,7 @@ const AlbumPage: React.FC = () => {
 
     const [personalRating, setPersonalRating] = useState(0);
     const [artisticRating, setArtisticRating] = useState(0);
+    const [listenedTracks, setListenedTracks] = useState<string[]>([]);
 
     useEffect(() => {
         const fetchAlbum = async () => {
@@ -107,6 +108,8 @@ const AlbumPage: React.FC = () => {
                                 setPersonalRating(userData.ratings[id].personal || 0);
                                 setArtisticRating(userData.ratings[id].artistic || 0);
                             }
+                            // Load listened tracks for this album
+                            setListenedTracks(userData.listenedTracks?.[id] || []);
                         }
                     } else {
                         // Fallback to localStorage
@@ -191,6 +194,50 @@ const AlbumPage: React.FC = () => {
         await rateAlbum(currentUser.uid, id, type, value);
     };
 
+    const handleToggleTrackListened = async (trackId: string, trackDurationMs: number) => {
+        if (!id || !album) return;
+
+        if (!currentUser) {
+            setIsLoginModalOpen(true);
+            return;
+        }
+
+        const isTrackListened = listenedTracks.includes(trackId);
+
+        // Optimistic update
+        if (isTrackListened) {
+            setListenedTracks(prev => prev.filter(t => t !== trackId));
+            await unmarkTrackAsListened(currentUser.uid, id, trackId, trackDurationMs);
+        } else {
+            setListenedTracks(prev => [...prev, trackId]);
+            await markTrackAsListened(currentUser.uid, id, trackId, trackDurationMs);
+        }
+    };
+
+    const handleMarkAllTracksListened = async () => {
+        if (!id || !album || !currentUser) {
+            if (!currentUser) setIsLoginModalOpen(true);
+            return;
+        }
+
+        const allTrackIds = album.tracks.map(t => t.id);
+        const unlistenedTracks = album.tracks.filter(t => !listenedTracks.includes(t.id));
+
+        if (unlistenedTracks.length === 0) {
+            // All tracks are already listened - unmark all
+            for (const track of album.tracks) {
+                await unmarkTrackAsListened(currentUser.uid, id, track.id, track.duration_ms);
+            }
+            setListenedTracks([]);
+        } else {
+            // Mark all unlistened tracks as listened
+            for (const track of unlistenedTracks) {
+                await markTrackAsListened(currentUser.uid, id, track.id, track.duration_ms);
+            }
+            setListenedTracks(allTrackIds);
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display text-slate-900 dark:text-white">
@@ -236,28 +283,28 @@ const AlbumPage: React.FC = () => {
                             {/* Quick Actions */}
                             <div className="flex flex-col gap-3">
                                 <div className="flex gap-3">
-                                    <button onClick={() => window.open(album.spotifyUrl, '_blank')} className="flex-1 h-12 flex items-center justify-center gap-3 rounded-full bg-[#1DB954] text-white font-semibold hover:bg-[#1ed760] transition-colors shadow-lg shadow-[#1DB954]/20">
-                                        <span className="material-symbols-outlined filled">play_arrow</span>
+                                    <button onClick={() => window.open(album.spotifyUrl, '_blank')} className="flex-1 h-12 flex items-center justify-center gap-2 rounded-full bg-[#1DB954] text-white font-medium text-sm hover:bg-[#1ed760] transition-colors shadow-lg shadow-[#1DB954]/20">
+                                        <span className="material-symbols-outlined filled text-[20px]">play_arrow</span>
                                         Spotify
                                     </button>
                                     {album.appleMusicUrl && (
-                                        <button onClick={() => window.open(album.appleMusicUrl, '_blank')} className="flex-1 h-12 flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#FA243C] to-[#FA5C7C] text-white font-semibold hover:opacity-90 transition-opacity shadow-lg shadow-[#FA243C]/20">
-                                            <span className="material-symbols-outlined filled">play_arrow</span>
+                                        <button onClick={() => window.open(album.appleMusicUrl, '_blank')} className="flex-1 h-12 flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FA243C] to-[#FA5C7C] text-white font-medium text-sm hover:opacity-90 transition-opacity shadow-lg shadow-[#FA243C]/20">
+                                            <span className="material-symbols-outlined filled text-[20px]">play_arrow</span>
                                             Apple Music
                                         </button>
                                     )}
                                 </div>
-                                <div className="flex gap-3">
-                                    <button onClick={handleShare} className="flex-1 h-12 flex items-center justify-center gap-2 rounded-full bg-white dark:bg-[#282e39] text-slate-900 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-[#323946] transition-colors border border-slate-200 dark:border-transparent">
-                                        <span className="material-symbols-outlined">ios_share</span>
+                                <div className="flex flex-wrap gap-3">
+                                    <button onClick={handleShare} className="flex-1 min-w-fit h-12 flex items-center justify-center gap-2 px-5 rounded-full bg-white dark:bg-[#282e39] text-slate-900 dark:text-white font-medium text-sm hover:bg-slate-50 dark:hover:bg-[#323946] transition-colors border border-slate-200 dark:border-transparent whitespace-nowrap">
+                                        <span className="material-symbols-outlined text-[20px]">ios_share</span>
                                         {t('album.share')}
                                     </button>
-                                    <button onClick={handleSave} className="flex-1 h-12 flex items-center justify-center gap-2 rounded-full bg-white dark:bg-[#282e39] text-slate-900 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-[#323946] transition-colors border border-slate-200 dark:border-transparent">
-                                        <span className={`material-symbols-outlined ${isSaved ? 'filled text-primary' : ''}`}>{isSaved ? 'check_circle' : 'playlist_add'}</span>
+                                    <button onClick={handleSave} className="flex-1 min-w-fit h-12 flex items-center justify-center gap-2 px-5 rounded-full bg-white dark:bg-[#282e39] text-slate-900 dark:text-white font-medium text-sm hover:bg-slate-50 dark:hover:bg-[#323946] transition-colors border border-slate-200 dark:border-transparent whitespace-nowrap">
+                                        <span className={`material-symbols-outlined text-[20px] ${isSaved ? 'filled text-primary' : ''}`}>{isSaved ? 'check_circle' : 'playlist_add'}</span>
                                         {isSaved ? t('album.saved_true') : t('album.saved_false')}
                                     </button>
-                                    <button onClick={handleToggleListened} className={`flex-1 h-12 flex items-center justify-center gap-2 rounded-full transition-colors border border-slate-200 dark:border-transparent font-medium ${isListened ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-500 dark:hover:text-red-400' : 'bg-white dark:bg-[#282e39] text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-[#323946]'}`}>
-                                        <span className={`material-symbols-outlined ${isListened ? 'filled' : ''}`}>{isListened ? 'check_circle' : 'check_small'}</span>
+                                    <button onClick={handleToggleListened} className={`flex-1 min-w-fit h-12 flex items-center justify-center gap-2 px-5 rounded-full transition-colors border border-slate-200 dark:border-transparent font-medium text-sm whitespace-nowrap ${isListened ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-500 dark:hover:text-red-400' : 'bg-white dark:bg-[#282e39] text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-[#323946]'}`}>
+                                        <span className={`material-symbols-outlined text-[20px] ${isListened ? 'filled' : ''}`}>{isListened ? 'check_circle' : 'check_small'}</span>
                                         {isListened ? t('album.listened_true') : t('album.listened_false')}
                                     </button>
                                 </div>
@@ -338,27 +385,88 @@ const AlbumPage: React.FC = () => {
 
                             {/* Tracklist */}
                             <div className="bg-white dark:bg-[#1a1f29] rounded-[2rem] p-6 border border-slate-200 dark:border-[#282e39] shadow-sm w-full">
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                                    <span className="material-symbols-outlined">queue_music</span> {t('album.tracklist')}
-                                </h3>
-                                <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                                    {album.tracks && album.tracks.map((track) => (
-                                        <div key={track.id} className="flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-[#282e39] rounded-xl transition-colors group">
-                                            <div className="flex items-center gap-4">
-                                                <span className="text-slate-400 font-mono text-sm w-6 text-center">{track.track_number}</span>
-                                                <div className="flex flex-col">
-                                                    <span className={`text-sm font-medium text-slate-900 dark:text-white ${track.preview_url ? 'cursor-pointer group-hover:text-primary transition-colors' : ''}`} onClick={() => track.preview_url && window.open(track.preview_url, '_blank')}>
-                                                        {track.name}
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-2">
+                                        <span className="material-symbols-outlined">queue_music</span>
+                                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('album.tracklist')}</h3>
+                                        {album.tracks && listenedTracks.length > 0 && (
+                                            <span className="px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs font-medium">
+                                                {listenedTracks.length}/{album.tracks.length} {t('album.tracks_listened')}
+                                            </span>
+                                        )}
+                                    </div>
+                                    {currentUser && album.tracks && album.tracks.length > 0 && (
+                                        <button
+                                            onClick={handleMarkAllTracksListened}
+                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${listenedTracks.length === album.tracks.length
+                                                ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50'
+                                                : 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50'
+                                                }`}
+                                        >
+                                            <span className="material-symbols-outlined text-[16px]">
+                                                {listenedTracks.length === album.tracks.length ? 'remove_done' : 'done_all'}
+                                            </span>
+                                            {listenedTracks.length === album.tracks.length ? t('album.unmark_all_listened') : t('album.mark_all_listened')}
+                                        </button>
+                                    )}
+                                </div>
+                                <div className="flex flex-col gap-1 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                                    {album.tracks && album.tracks.map((track) => {
+                                        const isTrackListened = listenedTracks.includes(track.id);
+                                        return (
+                                            <div
+                                                key={track.id}
+                                                className={`flex items-center justify-between p-3 rounded-xl transition-all group cursor-pointer ${isTrackListened
+                                                    ? 'bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30'
+                                                    : 'hover:bg-slate-50 dark:hover:bg-[#282e39]'
+                                                    }`}
+                                                onClick={() => handleToggleTrackListened(track.id, track.duration_ms)}
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-slate-400 font-mono text-sm w-6 text-center">{track.track_number}</span>
+                                                    <div className="flex flex-col">
+                                                        <span className={`text-sm font-medium transition-colors ${isTrackListened
+                                                            ? 'text-green-700 dark:text-green-400'
+                                                            : 'text-slate-900 dark:text-white'
+                                                            }`}>
+                                                            {track.name}
+                                                        </span>
+                                                        <span className="text-xs text-slate-500">{album.artist}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-4">
+                                                    {track.preview_url && (
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                window.open(track.preview_url!, '_blank');
+                                                            }}
+                                                            className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-full hover:bg-primary/10 text-primary"
+                                                            title={t('album.preview_url')}
+                                                        >
+                                                            <span className="material-symbols-outlined text-[18px]">play_arrow</span>
+                                                        </button>
+                                                    )}
+                                                    <span className={`text-xs font-mono mr-1 ${isTrackListened ? 'text-green-600 dark:text-green-400' : 'text-slate-400'}`}>
+                                                        {Math.floor(track.duration_ms / 60000)}:
+                                                        {((track.duration_ms % 60000) / 1000).toFixed(0).padStart(2, '0')}
                                                     </span>
-                                                    <span className="text-xs text-slate-500">{album.artist}</span>
+                                                    {/* Checkbox */}
+                                                    <div className={`relative w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${isTrackListened
+                                                        ? 'bg-gradient-to-br from-green-400 to-green-600 shadow-lg shadow-green-500/50 scale-100'
+                                                        : 'border-2 border-slate-300 dark:border-slate-600 group-hover:border-primary group-hover:scale-110 group-hover:shadow-md'
+                                                        }`}>
+                                                        {isTrackListened && (
+                                                            <span className="material-symbols-outlined text-white text-[18px] filled animate-scale-in">check</span>
+                                                        )}
+                                                        {!isTrackListened && (
+                                                            <div className="absolute inset-0 rounded-full bg-primary/0 group-hover:bg-primary/10 transition-colors duration-300"></div>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <span className="text-xs text-slate-400 font-mono">
-                                                {Math.floor(track.duration_ms / 60000)}:
-                                                {((track.duration_ms % 60000) / 1000).toFixed(0).padStart(2, '0')}
-                                            </span>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
 

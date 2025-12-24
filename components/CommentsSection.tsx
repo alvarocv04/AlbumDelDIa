@@ -49,7 +49,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ albumId }) => {
     };
 
     const handleDelete = async (commentId: string) => {
-        if (!confirm(t('confirmDeleteComment') || 'Are you sure you want to delete this comment?')) return;
+        if (!confirm(t('comments.delete_confirm'))) return;
         try {
             await deleteComment(commentId);
             setComments(comments.filter(c => c.id !== commentId));
@@ -63,10 +63,10 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ albumId }) => {
         const now = new Date();
         const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-        if (diffInSeconds < 60) return 'Just now';
-        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-        if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+        if (diffInSeconds < 60) return t('comments.just_now');
+        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}${t('comments.minutes_ago')}`;
+        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}${t('comments.hours_ago')}`;
+        if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}${t('comments.days_ago')}`;
         return date.toLocaleDateString();
     };
 
@@ -83,7 +83,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ albumId }) => {
             <div className="flex items-center gap-3 mb-8">
                 <span className="material-symbols-outlined text-primary text-2xl">forum</span>
                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
-                    Comments <span className="text-slate-500 text-lg font-normal">({comments.length})</span>
+                    {t('comments.title')} <span className="text-slate-500 text-lg font-normal">({comments.length})</span>
                 </h3>
             </div>
 
@@ -105,7 +105,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ albumId }) => {
                             <textarea
                                 value={newComment}
                                 onChange={(e) => setNewComment(e.target.value)}
-                                placeholder="What do you think about this album?"
+                                placeholder={t('comments.placeholder')}
                                 className="w-full bg-slate-50 dark:bg-black/20 text-slate-900 dark:text-white placeholder-slate-400 border border-slate-200 dark:border-white/10 rounded-2xl p-6 min-h-[120px] focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-y text-base leading-relaxed"
                                 rows={3}
                             />
@@ -118,11 +118,11 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ albumId }) => {
                                     {submitting ? (
                                         <>
                                             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                            <span>Posting...</span>
+                                            <span>{t('comments.posting')}</span>
                                         </>
                                     ) : (
                                         <>
-                                            <span>Post Comment</span>
+                                            <span>{t('comments.post')}</span>
                                             <span className="material-symbols-outlined text-sm">send</span>
                                         </>
                                     )}
@@ -134,8 +134,8 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ albumId }) => {
             ) : (
                 <div className="mb-10 p-8 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-white/5 dark:to-white/10 border border-dashed border-slate-300 dark:border-white/10 text-center">
                     <span className="material-symbols-outlined text-4xl text-slate-400 mb-3">lock</span>
-                    <p className="text-slate-600 dark:text-slate-300 font-medium text-lg">Join the conversation</p>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">Please log in to leave a comment on this album.</p>
+                    <p className="text-slate-600 dark:text-slate-300 font-medium text-lg">{t('comments.join_conversation')}</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">{t('comments.login_to_comment')}</p>
                 </div>
             )}
 
@@ -145,8 +145,8 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ albumId }) => {
                         <div className="w-16 h-16 rounded-full bg-slate-50 dark:bg-white/5 flex items-center justify-center mb-4">
                             <span className="material-symbols-outlined text-3xl text-slate-300 dark:text-slate-600">chat_bubble_outline</span>
                         </div>
-                        <p className="text-lg font-medium text-slate-600 dark:text-slate-300">No comments yet</p>
-                        <p className="text-sm text-slate-400 dark:text-slate-500 max-w-xs mx-auto mt-1">Be the first to share your thoughts on this masterpiece!</p>
+                        <p className="text-lg font-medium text-slate-600 dark:text-slate-300">{t('comments.no_comments')}</p>
+                        <p className="text-sm text-slate-400 dark:text-slate-500 max-w-xs mx-auto mt-1">{t('comments.be_first')}</p>
                     </div>
                 ) : (
                     comments.map((comment) => (
@@ -177,7 +177,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ albumId }) => {
                                             <button
                                                 onClick={() => handleDelete(comment.id)}
                                                 className="opacity-0 group-hover:opacity-100 p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all absolute top-2 right-2"
-                                                title="Delete comment"
+                                                title={t('comments.delete_tooltip')}
                                             >
                                                 <span className="material-symbols-outlined text-[16px]">delete</span>
                                             </button>
@@ -195,3 +195,4 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ albumId }) => {
 };
 
 export default CommentsSection;
+

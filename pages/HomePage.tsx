@@ -121,7 +121,7 @@ const HomePage: React.FC = () => {
                                                 )}
                                             </div>
                                             <h1 className="text-slate-900 dark:text-white text-4xl sm:text- Leviathan 5xl font-black leading-tight tracking-tight">{dailyAlbum.title}</h1>
-                                            <p className="text-slate-500 dark:text-slate-400 text-lg sm:text- Leviathan xl font-medium mt-1">{t('common.by')} <span className="text-slate-900 dark:text-white hover:underline cursor-pointer">{dailyAlbum.artist}</span></p>
+                                            <p className="text-slate-500 dark:text-slate-400 text-lg sm:text- Leviathan xl font-medium mt-1">{t('common.by')} <span className="text-slate-900 dark:text-white">{dailyAlbum.artist}</span></p>
                                         </div>
 
                                         <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">

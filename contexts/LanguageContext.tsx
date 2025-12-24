@@ -16,6 +16,7 @@ const translations = {
     'nav.profile': 'Profile',
     'nav.wrapped': 'Stats',
     'nav.community': 'Community',
+    'nav.calendar': 'Calendar',
     'search.placeholder': 'Search albums...',
 
     'home.album_of_day': 'Album of the Day',
@@ -152,6 +153,22 @@ const translations = {
     'album.view_all_comments': 'View all comments',
     'album.reply': 'Reply',
 
+    // Comments Section
+    'comments.title': 'Comments',
+    'comments.placeholder': 'What do you think about this album?',
+    'comments.post': 'Post Comment',
+    'comments.posting': 'Posting...',
+    'comments.no_comments': 'No comments yet',
+    'comments.be_first': 'Be the first to share your thoughts on this masterpiece!',
+    'comments.join_conversation': 'Join the conversation',
+    'comments.login_to_comment': 'Please log in to leave a comment on this album.',
+    'comments.delete_confirm': 'Are you sure you want to delete this comment?',
+    'comments.delete_tooltip': 'Delete comment',
+    'comments.just_now': 'Just now',
+    'comments.minutes_ago': 'm ago',
+    'comments.hours_ago': 'h ago',
+    'comments.days_ago': 'd ago',
+
     'profile.login_required': 'Sign in to view your profile',
     'profile.login_desc': 'Connect with Google to track your listening history, save albums, and earn badges.',
     'profile.sign_in_google': 'Sign in with Google',
@@ -219,6 +236,11 @@ const translations = {
     'album.loading_desc': 'Loading description...',
     'album.tracklist': 'Tracklist',
     'album.preview_url': 'Preview',
+    'album.track_listened': 'Listened',
+    'album.track_not_listened': 'Not listened',
+    'album.mark_all_listened': 'Mark All as Listened',
+    'album.unmark_all_listened': 'Unmark All',
+    'album.tracks_listened': 'tracks listened',
 
     // Admin
     'admin.title': 'Admin Dashboard',
@@ -242,7 +264,48 @@ const translations = {
     'admin.no_permission': 'You do not have permission to access the admin area.',
     'admin.secure_auth': 'Please secure authentication or contact support if this is an error.',
     'admin.current_user': 'Current User',
-    'admin.not_logged_in': 'Not logged in'
+    'admin.not_logged_in': 'Not logged in',
+    'calendar.title': 'Daily History',
+    'calendar.subtitle': 'Explore the albums that have been featured each day.',
+    'calendar.no_history': 'No history found yet.',
+
+    // Coming Soon
+    'coming_soon.tagline': 'Discover a new album every day',
+    'coming_soon.description': 'Every day we select a legendary album for you to discover. Rate it, share your thoughts with the community, and build your listening streak. Get ready for a unique musical journey!',
+    'coming_soon.launching_in': 'Launching in',
+    'coming_soon.days': 'Days',
+    'coming_soon.hours': 'Hours',
+    'coming_soon.minutes': 'Minutes',
+    'coming_soon.seconds': 'Seconds',
+    'coming_soon.launch_date': 'January 1, 2026',
+    'coming_soon.feature1_title': 'Daily Album',
+    'coming_soon.feature1_desc': 'A new legendary album handpicked every day for you to discover.',
+    'coming_soon.feature2_title': 'Community',
+    'coming_soon.feature2_desc': 'Connect with fellow music lovers and share your reviews.',
+    'coming_soon.feature3_title': 'Achievements',
+    'coming_soon.feature3_desc': 'Earn badges, maintain your streak, and climb the leaderboards.',
+    'coming_soon.follow_us': 'Stay tuned for updates',
+    'coming_soon.rights_reserved': 'All rights reserved.',
+
+    // FAQ & Manual
+    'faq.title': 'Help Center',
+    'faq.manual_title': 'User Manual',
+    'faq.faq_title': 'Frequently Asked Questions',
+    'faq.streak_title': 'How the Streak Works',
+    'faq.streak_desc': 'The streak is a measure of your consistency. To keep your streak alive, you must listen to the Album of the Day every single day. If you miss a day, your streak will reset to 0.',
+    'faq.calendar_title': 'Using the Calendar',
+    'faq.calendar_desc': 'The calendar allows you to travel back in time and discover albums from previous days. Perfect if you missed a daily recommendation.',
+    'faq.library_title': 'Your Library',
+    'faq.library_desc': 'Save albums you love to build your personal collection. You can filter by "Saved" or "Listened" to organize your music journey.',
+
+    'faq.q1': 'How do I change my username?',
+    'faq.a1': 'Go to your Profile page and click on the "edit" icon next to your current username.',
+    'faq.q2': 'Can I listen to albums directly here?',
+    'faq.a2': 'We provide links to Spotify and Apple Music for full playback. We track your listening time when you keep the app open or manually mark albums as listened.',
+    'faq.q3': 'What are badges?',
+    'faq.a3': 'Badges are achievements you unlock by reaching milestones like listening streaks, specific genres, or total listening time.',
+    'faq.q4': 'Is my data private?',
+    'faq.a4': 'Yes, your listening history is public to your friends if you follow each other, but your personal account details are secure.'
   },
 
   es: {
@@ -252,6 +315,7 @@ const translations = {
     'nav.profile': 'Perfil',
     'nav.wrapped': 'Estadísticas',
     'nav.community': 'Comunidad',
+    'nav.calendar': 'Calendario',
     'search.placeholder': 'Buscar álbumes...',
 
     'home.album_of_day': 'El Álbum del Día',
@@ -388,6 +452,21 @@ const translations = {
     'album.view_all_comments': 'Ver todos los comentarios',
     'album.reply': 'Responder',
 
+    // Comments Section
+    'comments.title': 'Comentarios',
+    'comments.placeholder': '¿Qué opinas de este álbum?',
+    'comments.post': 'Publicar',
+    'comments.posting': 'Publicando...',
+    'comments.no_comments': 'Aún no hay comentarios',
+    'comments.be_first': '¡Sé el primero en compartir tu opinión sobre esta obra maestra!',
+    'comments.join_conversation': 'Únete a la conversación',
+    'comments.login_to_comment': 'Por favor, inicia sesión para comentar en este álbum.',
+    'comments.delete_confirm': '¿Seguro que quieres eliminar este comentario?',
+    'comments.delete_tooltip': 'Eliminar comentario',
+    'comments.just_now': 'Ahora mismo',
+    'comments.minutes_ago': 'min',
+    'comments.hours_ago': 'h',
+    'comments.days_ago': 'd',
     'profile.login_required': 'Inicia sesión para ver tu perfil',
     'profile.login_desc': 'Conéctate con Google para seguir tu historial de escucha, guardar álbumes y ganar insignias.',
     'profile.sign_in_google': 'Iniciar sesión con Google',
@@ -455,6 +534,11 @@ const translations = {
     'album.loading_desc': 'Cargando descripción...',
     'album.tracklist': 'Lista de Canciones',
     'album.preview_url': 'Previa',
+    'album.track_listened': 'Escuchada',
+    'album.track_not_listened': 'No escuchada',
+    'album.mark_all_listened': 'Marcar Todas',
+    'album.unmark_all_listened': 'Desmarcar Todas',
+    'album.tracks_listened': 'canciones escuchadas',
 
     // Admin
     'admin.title': 'Panel de Administración',
@@ -478,7 +562,48 @@ const translations = {
     'admin.no_permission': 'No tienes permiso para acceder al área de administración.',
     'admin.secure_auth': 'Por favor, asegura tu autenticación o contacta con soporte si es un error.',
     'admin.current_user': 'Usuario Actual',
-    'admin.not_logged_in': 'No iniciado sesión'
+    'admin.not_logged_in': 'No iniciado sesión',
+    'calendar.title': 'Historial Diario',
+    'calendar.subtitle': 'Explora los álbumes que han sido destacados cada día.',
+    'calendar.no_history': 'Aún no hay historial disponible.',
+
+    // Coming Soon
+    'coming_soon.tagline': 'Descubre un nuevo álbum cada día',
+    'coming_soon.description': 'Cada día seleccionamos un álbum legendario para que lo descubras. Califícalo, comparte tus opiniones con la comunidad y mantén tu racha de escucha. ¡Prepárate para un viaje musical único!',
+    'coming_soon.launching_in': 'Lanzamiento en',
+    'coming_soon.days': 'Días',
+    'coming_soon.hours': 'Horas',
+    'coming_soon.minutes': 'Minutos',
+    'coming_soon.seconds': 'Segundos',
+    'coming_soon.launch_date': '1 de Enero de 2026',
+    'coming_soon.feature1_title': 'Álbum Diario',
+    'coming_soon.feature1_desc': 'Un nuevo álbum legendario seleccionado cada día para que lo descubras.',
+    'coming_soon.feature2_title': 'Comunidad',
+    'coming_soon.feature2_desc': 'Conecta con otros amantes de la música y comparte tus reseñas.',
+    'coming_soon.feature3_title': 'Logros',
+    'coming_soon.feature3_desc': 'Gana insignias, mantén tu racha y escala en las clasificaciones.',
+    'coming_soon.follow_us': 'Mantente atento a las novedades',
+    'coming_soon.rights_reserved': 'Todos los derechos reservados.',
+
+    // FAQ & Manual
+    'faq.title': 'Centro de Ayuda',
+    'faq.manual_title': 'Manual de Usuario',
+    'faq.faq_title': 'Preguntas Frecuentes',
+    'faq.streak_title': 'Cómo funciona la Racha',
+    'faq.streak_desc': 'La racha es una medida de tu constancia. Para mantener tu racha viva, debes escuchar el Álbum del Día cada día. Si faltas un día, tu racha se reiniciará a 0.',
+    'faq.calendar_title': 'Usando el Calendario',
+    'faq.calendar_desc': 'El calendario te permite viajar en el tiempo y descubrir álbumes de días anteriores. Perfecto si te perdiste alguna recomendación diaria.',
+    'faq.library_title': 'Tu Biblioteca',
+    'faq.library_desc': 'Guarda los álbumes que te encanten para construir tu colección personal. Puedes filtrar por "Guardados" o "Escuchados" para organizar tu viaje musical.',
+
+    'faq.q1': '¿Cómo cambio mi nombre de usuario?',
+    'faq.a1': 'Ve a tu página de Perfil y haz clic en el icono de "editar" junto a tu nombre actual.',
+    'faq.q2': '¿Puedo escuchar álbumes directamente aquí?',
+    'faq.a2': 'Proporcionamos enlaces a Spotify y Apple Music para la reproducción completa. Rastreamos tu tiempo de escucha cuando marcas los álbumes como escuchados.',
+    'faq.q3': '¿Qué son las insignias?',
+    'faq.a3': 'Las insignias son logros que desbloqueas alcanzando hitos como rachas de escucha, géneros específicos o tiempo total de escucha.',
+    'faq.q4': '¿Son mis datos privados?',
+    'faq.a4': 'Sí, tu historial de escucha es visible para tus amigos si os seguís mutuamente, pero los detalles de tu cuenta personal están seguros.'
   }
 };
 

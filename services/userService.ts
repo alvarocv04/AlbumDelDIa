@@ -56,6 +56,7 @@ export const syncUser = async (user: User) => {
             savedAlbums: [],
             ratings: {}, // Map of albumId -> { personal: number, artistic: number }
             history: [], // Array of albumIds
+            listenedTracks: {}, // Map of albumId -> array of track IDs
             createdAt: new Date(),
             stats: {
                 followers: 0,
@@ -261,11 +262,73 @@ export const unmarkAlbumAsListened = async (userId: string, albumId: string, dur
 
     await updateDoc(userRef, {
         history: arrayRemove(albumId),
+        [`listenedTracks.${albumId}`]: [], // Clear all listened tracks for this album
         'stats.minutesListened': Math.max(0, currentMinutes - minutes),
         'stats.streak': newStreak,
         'stats.lastListenedDate': newLastListenedDate,
         'stats.albumsListenedToday': albumsToday
     });
+};
+
+// --- Individual Track Listening ---
+
+export const markTrackAsListened = async (userId: string, albumId: string, trackId: string, trackDurationMs: number) => {
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) return;
+
+    const userData = userSnap.data();
+
+    // Check if track is already listened
+    const listenedTracks = userData.listenedTracks?.[albumId] || [];
+    if (listenedTracks.includes(trackId)) {
+        return; // Already listened
+    }
+
+    // Calculate Minutes
+    const minutes = Math.round(trackDurationMs / 60000);
+
+    // Update Firestore - add track and increment minutes
+    await updateDoc(userRef, {
+        [`listenedTracks.${albumId}`]: arrayUnion(trackId),
+        'stats.minutesListened': (userData.stats?.minutesListened || 0) + minutes
+    });
+};
+
+export const unmarkTrackAsListened = async (userId: string, albumId: string, trackId: string, trackDurationMs: number) => {
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) return;
+
+    const userData = userSnap.data();
+
+    // Check if track is actually listened
+    const listenedTracks = userData.listenedTracks?.[albumId] || [];
+    if (!listenedTracks.includes(trackId)) {
+        return; // Not listened
+    }
+
+    // Calculate Minutes to subtract
+    const minutes = Math.round(trackDurationMs / 60000);
+    const currentMinutes = userData.stats?.minutesListened || 0;
+
+    // Update Firestore - remove track and decrement minutes
+    await updateDoc(userRef, {
+        [`listenedTracks.${albumId}`]: arrayRemove(trackId),
+        'stats.minutesListened': Math.max(0, currentMinutes - minutes)
+    });
+};
+
+export const getListenedTracksForAlbum = async (userId: string, albumId: string): Promise<string[]> => {
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) return [];
+
+    const userData = userSnap.data();
+    return userData.listenedTracks?.[albumId] || [];
 };
 
 // --- Friends & Social Features ---
