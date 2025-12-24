@@ -4,7 +4,7 @@
 
 **Discover, listen, and share your musical journey—one album at a time.**
 
-[Explore the App](https://albumdeldia.web.app) • [Report Bug](https://github.com/alvarocv04/AlbumDelDIa/issues) • [Request Feature](https://github.com/alvarocv04/AlbumDelDIa/issues)
+[Explore the App](https://albumdeldia.app) • [Report Bug](https://github.com/alvarocv04/AlbumDelDIa/issues) • [Request Feature](https://github.com/alvarocv04/AlbumDelDIa/issues)
 
 </div>
 
