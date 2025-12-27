@@ -129,14 +129,14 @@ const DetailsPage: React.FC = () => {
                                 <Link to={`/album/${album.spotifyId}`} key={album.spotifyId} className="group relative flex flex-col gap-3 p-3 rounded-2xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark hover:border-primary/50 transition-all hover:shadow-xl hover:-translate-y-1 cursor-pointer">
                                     <div className="relative aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-black/20">
                                         <div className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style={{ backgroundImage: `url('${album.coverUrl}')` }}></div>
-                                        <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
+                                        <div className="absolute top-2 left-2 right-2 flex flex-col gap-1 items-start">
                                             {album.isListened && (
-                                                <span className="px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md bg-green-500/80 text-white">
+                                                <span className="px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wide backdrop-blur-md bg-green-500/90 text-white shadow-sm whitespace-nowrap">
                                                     {t('library.filter.listened')}
                                                 </span>
                                             )}
                                             {album.isSaved && !album.isListened && (
-                                                <span className="px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md bg-orange-500/80 text-white">
+                                                <span className="px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wide backdrop-blur-md bg-orange-500/90 text-white shadow-sm whitespace-nowrap">
                                                     {t('library.filter.saved')}
                                                 </span>
                                             )}

@@ -93,36 +93,36 @@ const CalendarPage: React.FC = () => {
     return (
         <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-background-light dark:bg-background-dark">
             <Header />
-            <main className="flex flex-col items-center flex-1 px-4 sm:px-10 py-6 sm:py-10 animate-fade-in">
-                <div className="layout-content-container flex flex-col max-w-[1024px] w-full flex-1 gap-8">
+            <main className="flex flex-col items-center flex-1 px-3 sm:px-10 py-4 sm:py-10 animate-fade-in">
+                <div className="layout-content-container flex flex-col max-w-[1024px] w-full flex-1 gap-4 sm:gap-8">
 
-                    {/* Header Section */}
-                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
-                        <div className="flex flex-col gap-2">
-                            <h1 className="text-slate-900 dark:text-white text-3xl sm:text-4xl font-black leading-tight tracking-tight">
+                    {/* Header Section - Stacked on mobile */}
+                    <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-1">
+                            <h1 className="text-slate-900 dark:text-white text-2xl sm:text-4xl font-black leading-tight tracking-tight">
                                 {t('calendar.title')}
                             </h1>
-                            <p className="text-slate-500 dark:text-slate-400 text-lg font-medium">
+                            <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-lg font-medium">
                                 {t('calendar.subtitle')}
                             </p>
                         </div>
 
-                        {/* Month Navigation */}
-                        <div className="flex items-center gap-4 bg-white dark:bg-surface-dark p-2 rounded-2xl border border-slate-200 dark:border-border-dark shadow-sm">
+                        {/* Month Navigation - Full width on mobile */}
+                        <div className="flex items-center justify-between gap-2 bg-white dark:bg-surface-dark p-2 sm:p-3 rounded-2xl border border-slate-200 dark:border-border-dark shadow-sm">
                             <button
                                 onClick={() => navigateMonth(-1)}
-                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors text-slate-600 dark:text-slate-300"
+                                className="p-2.5 sm:p-3 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors text-slate-600 dark:text-slate-300 active:scale-95"
                             >
-                                <span className="material-symbols-outlined">chevron_left</span>
+                                <span className="material-symbols-outlined text-[24px]">chevron_left</span>
                             </button>
-                            <span className="text-slate-900 dark:text-white font-bold min-w-[140px] text-center capitalize">
+                            <span className="text-slate-900 dark:text-white font-bold text-base sm:text-lg text-center capitalize flex-grow">
                                 {monthName}
                             </span>
                             <button
                                 onClick={() => navigateMonth(1)}
-                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors text-slate-600 dark:text-slate-300"
+                                className="p-2.5 sm:p-3 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors text-slate-600 dark:text-slate-300 active:scale-95"
                             >
-                                <span className="material-symbols-outlined">chevron_right</span>
+                                <span className="material-symbols-outlined text-[24px]">chevron_right</span>
                             </button>
                         </div>
                     </div>
@@ -132,11 +132,11 @@ const CalendarPage: React.FC = () => {
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                         </div>
                     ) : (
-                        <div className="bg-white dark:bg-surface-dark rounded-3xl border border-slate-200 dark:border-border-dark shadow-xl overflow-hidden animate-fade-in">
+                        <div className="bg-white dark:bg-surface-dark rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-border-dark shadow-xl overflow-hidden animate-fade-in">
                             {/* Calendar Grid Header */}
                             <div className="grid grid-cols-7 bg-slate-50 dark:bg-black/20 border-b border-slate-200 dark:border-border-dark">
                                 {weekDays.map(day => (
-                                    <div key={day} className="py-4 text-center text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                                    <div key={day} className="py-2.5 sm:py-4 text-center text-[10px] sm:text-xs font-black uppercase tracking-wider sm:tracking-widest text-slate-400 dark:text-slate-500">
                                         {day}
                                     </div>
                                 ))}
@@ -146,7 +146,7 @@ const CalendarPage: React.FC = () => {
                             <div className="grid grid-cols-7">
                                 {calendarDays.map((day, index) => {
                                     if (day === null) {
-                                        return <div key={`empty-${index}`} className="aspect-square border-b border-r border-slate-100 dark:border-border-dark/30 bg-slate-50/30 dark:bg-transparent" />;
+                                        return <div key={`empty-${index}`} className="calendar-cell aspect-square border-b border-r border-slate-100 dark:border-border-dark/30 bg-slate-50/30 dark:bg-transparent" />;
                                     }
 
                                     const album = getAlbumForDay(day);
@@ -155,26 +155,26 @@ const CalendarPage: React.FC = () => {
                                     return (
                                         <div
                                             key={day}
-                                            className={`relative aspect-square border-b border-r border-slate-100 dark:border-border-dark/50 group transition-all duration-300 ${album ? 'hover:bg-primary/5' : ''
+                                            className={`calendar-cell relative aspect-square border-b border-r border-slate-100 dark:border-border-dark/50 group transition-all duration-300 ${album ? 'hover:bg-primary/5' : ''
                                                 }`}
                                         >
-                                            {/* Day Number */}
-                                            <div className="absolute top-2 left-2 z-10">
-                                                <span className={`flex items-center justify-center w-7 h-7 text-xs font-bold rounded-full transition-colors ${isCurrentDay
-                                                        ? 'bg-primary text-white shadow-lg shadow-primary/30'
-                                                        : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white'
+                                            {/* Day Number - repositioned for mobile */}
+                                            <div className="absolute top-0.5 left-0.5 sm:top-2 sm:left-2 z-10">
+                                                <span className={`flex items-center justify-center w-5 h-5 sm:w-7 sm:h-7 text-[9px] sm:text-xs font-bold rounded-full transition-colors ${isCurrentDay
+                                                    ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                                                    : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white'
                                                     }`}>
                                                     {day}
                                                 </span>
                                             </div>
 
-                                            {/* Album Content */}
+                                            {/* Album Content - larger on mobile */}
                                             {album ? (
                                                 <Link
                                                     to={`/album/${album.spotifyId}`}
-                                                    className="absolute inset-0 p-1 pt-8 sm:p-2 sm:pt-10 flex flex-col items-center justify-center animate-zoom-in"
+                                                    className="absolute inset-0 p-0.5 pt-5 sm:p-2 sm:pt-10 flex flex-col items-center justify-center animate-zoom-in"
                                                 >
-                                                    <div className="relative w-full h-full max-w-[80px] max-h-[80px] aspect-square rounded-lg sm:rounded-xl overflow-hidden shadow-md group-hover:shadow-xl group-hover:scale-110 group-hover:-rotate-3 transition-all duration-500">
+                                                    <div className="relative w-[85%] h-[65%] sm:w-full sm:h-full sm:max-w-[80px] sm:max-h-[80px] aspect-square rounded-md sm:rounded-xl overflow-hidden shadow-md group-hover:shadow-xl group-hover:scale-110 group-hover:-rotate-3 transition-all duration-500">
                                                         <img
                                                             src={album.coverUrl}
                                                             alt={album.title}
@@ -183,7 +183,7 @@ const CalendarPage: React.FC = () => {
                                                         />
                                                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                                                             <div className="bg-white/90 dark:bg-primary/90 text-primary dark:text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transform scale-50 group-hover:scale-100 transition-all duration-300">
-                                                                <span className="material-symbols-outlined text-[20px] filled">play_arrow</span>
+                                                                <span className="material-symbols-outlined text-[16px] sm:text-[20px] filled">play_arrow</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -211,9 +211,12 @@ const CalendarPage: React.FC = () => {
                 .layout-content-container {
                     max-width: 1024px;
                 }
+                .calendar-cell {
+                    min-height: 52px;
+                }
                 @media (min-width: 640px) {
-                    .calendar-grid-cell {
-                        min-height: 120px;
+                    .calendar-cell {
+                        min-height: 100px;
                     }
                 }
             `}</style>

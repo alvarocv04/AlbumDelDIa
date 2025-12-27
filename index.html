@@ -4,11 +4,82 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+
+    <!-- Cache Control Meta Tags -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <!-- App Version for Cache Busting -->
+    <meta name="app-version" content="2024.12.27.1" />
+
+    <!-- DNS Prefetch for faster CDN resolution -->
+    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="https://unpkg.com" />
+
+    <!-- Preconnect for critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
     <!-- First Input Delay Polyfill for Firebase Performance -->
-    <script src="https://unpkg.com/first-input-delay@0.2.3/dist/first-input-delay.min.js"></script>
+    <script src="https://unpkg.com/first-input-delay@0.2.3/dist/first-input-delay.min.js"
+        onerror="console.warn('FID polyfill failed to load')"></script>
+
     <title>Albumdeldia - El Álbum del Día</title>
+
+    <!-- Resource Loading Error Detection -->
+    <script>
+        (function () {
+            var loadErrors = [];
+            var criticalResourcesFailed = false;
+
+            window.addEventListener('error', function (e) {
+                if (e.target && (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK')) {
+                    var src = e.target.src || e.target.href || 'unknown';
+                    loadErrors.push(src);
+                    console.error('Resource failed to load:', src);
+
+                    // Check if it's a critical resource (Tailwind or main fonts)
+                    if (src.includes('tailwindcss') || src.includes('fonts.googleapis')) {
+                        criticalResourcesFailed = true;
+                    }
+                }
+            }, true);
+
+            // After page load, check if critical resources failed
+            window.addEventListener('load', function () {
+                if (criticalResourcesFailed) {
+                    // Check if we've already tried to reload
+                    var reloadAttempts = parseInt(sessionStorage.getItem('reloadAttempts') || '0');
+                    if (reloadAttempts < 2) {
+                        sessionStorage.setItem('reloadAttempts', String(reloadAttempts + 1));
+                        console.warn('Critical resources failed, reloading page...');
+                        // Force a hard reload bypassing cache
+                        location.reload(true);
+                    } else {
+                        console.error('Critical resources failed after multiple attempts. Please try clearing your browser cache.');
+                        sessionStorage.removeItem('reloadAttempts');
+                    }
+                } else {
+                    // Reset reload counter on successful load
+                    sessionStorage.removeItem('reloadAttempts');
+                }
+
+                // Check if Tailwind loaded correctly
+                setTimeout(function () {
+                    if (typeof tailwind === 'undefined') {
+                        console.error('Tailwind failed to initialize');
+                    }
+                }, 1000);
+            });
+        })();
+    </script>
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
     <!-- Theme Configuration -->
     <script>
         tailwind.config = {
@@ -42,18 +113,34 @@
             },
         }
     </script>
-    <!-- Google Fonts & Icons -->
-    <link href="https://fonts.googleapis.com" rel="preconnect" />
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap"
+
+    <!-- Google Fonts with display=swap for faster text rendering -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
         rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
 
     <style>
+        /* Fallback font stack - will use system fonts if Inter fails to load */
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        /* Critical fallback styles if Tailwind fails to load */
+        .fallback-dark-mode {
+            background-color: #101622;
+            color: #ffffff;
+        }
+
+        /* Ensure text is visible even without Tailwind */
+        html.dark body {
+            background-color: #101622;
+            color: #ffffff;
+        }
+
+        html body {
+            background-color: #f6f6f8;
+            color: #1e293b;
         }
 
         /* Custom scrollbar */

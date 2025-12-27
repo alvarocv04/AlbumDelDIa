@@ -225,16 +225,34 @@ const AlbumPage: React.FC = () => {
 
         if (unlistenedTracks.length === 0) {
             // All tracks are already listened - unmark all
-            for (const track of album.tracks) {
-                await unmarkTrackAsListened(currentUser.uid, id, track.id, track.duration_ms);
-            }
+            // Optimistic update: immediately update UI
             setListenedTracks([]);
+
+            // Then update database in background (don't await each one sequentially)
+            Promise.all(
+                album.tracks.map(track =>
+                    unmarkTrackAsListened(currentUser.uid, id, track.id, track.duration_ms)
+                )
+            ).catch(error => {
+                console.error('Error unmarking tracks:', error);
+                // Revert on error
+                setListenedTracks(allTrackIds);
+            });
         } else {
             // Mark all unlistened tracks as listened
-            for (const track of unlistenedTracks) {
-                await markTrackAsListened(currentUser.uid, id, track.id, track.duration_ms);
-            }
+            // Optimistic update: immediately update UI
             setListenedTracks(allTrackIds);
+
+            // Then update database in background (don't await each one sequentially)
+            Promise.all(
+                unlistenedTracks.map(track =>
+                    markTrackAsListened(currentUser.uid, id, track.id, track.duration_ms)
+                )
+            ).catch(error => {
+                console.error('Error marking tracks:', error);
+                // Revert on error
+                setListenedTracks(prev => prev.filter(t => !unlistenedTracks.map(ut => ut.id).includes(t)));
+            });
         }
     };
 

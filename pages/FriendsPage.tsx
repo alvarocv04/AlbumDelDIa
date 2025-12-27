@@ -124,15 +124,15 @@ const FriendsPage: React.FC = () => {
                     <div className="max-w-7xl mx-auto flex flex-col gap-8">
 
                         {/* Page Header */}
-                        <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-4">
-                            <div className="flex flex-col gap-2">
-                                <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-                                    <span className="material-symbols-outlined text-primary text-[36px]">
+                        <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-center">
+                            <div className="flex flex-col gap-1">
+                                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                                    <span className="material-symbols-outlined text-primary text-[28px] sm:text-[36px]">
                                         {viewMode === 'ranking' ? 'leaderboard' : 'group_add'}
                                     </span>
                                     {viewMode === 'ranking' ? t('friends.rankings_title') : t('friends.find_friends')}
                                 </h1>
-                                <p className="text-slate-600 dark:text-slate-400">
+                                <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
                                     {viewMode === 'ranking'
                                         ? t('friends.rankings_subtitle')
                                         : t('friends.search_subtitle')}
@@ -207,84 +207,109 @@ const FriendsPage: React.FC = () => {
                             </div>
                         ) : viewMode === 'ranking' ? (
                             /* Ranking List View */
-                            <div className="flex flex-col gap-3">
+                            <div className="flex flex-col gap-4">
                                 {users.map((user, index) => (
                                     <Link
                                         to={`/profile/${user.uid}`}
                                         key={user.uid}
-                                        className="group flex items-center gap-4 bg-white dark:bg-surface-dark p-4 rounded-2xl border border-slate-200 dark:border-border-dark hover:border-primary/50 transition-all hover:shadow-md"
+                                        className="group flex flex-col sm:flex-row sm:items-center gap-4 bg-white dark:bg-surface-dark p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-border-dark hover:border-primary/50 transition-all hover:shadow-lg"
                                     >
-                                        {/* Rank Number */}
-                                        <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg ${index === 0 ? 'bg-yellow-400/20 text-yellow-600 dark:text-yellow-400' :
-                                            index === 1 ? 'bg-slate-300/30 text-slate-500' :
-                                                index === 2 ? 'bg-amber-600/20 text-amber-700' :
-                                                    'bg-slate-100 dark:bg-slate-800 text-slate-500'
-                                            }`}>
-                                            {index + 1}
-                                        </div>
-
-                                        {/* User Avatar & Name */}
-                                        <div className="flex items-center gap-3 flex-grow min-w-0">
-                                            <div
-                                                className="w-12 h-12 rounded-full border-2 border-white dark:border-slate-700 shadow-sm bg-slate-200 flex-shrink-0 overflow-hidden"
-                                            >
-                                                <img
-                                                    src={user.photoURL || DEFAULT_PROFILE_PIC}
-                                                    alt={user.username || 'User'}
-                                                    className="w-full h-full object-cover"
-                                                    onError={(e) => {
-                                                        const target = e.target as HTMLImageElement;
-                                                        target.src = DEFAULT_PROFILE_PIC;
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className="flex flex-col min-w-0">
-                                                <h3 className="text-base font-bold text-slate-900 dark:text-white truncate">
-                                                    {user.username ? `@${user.username}` : 'Anonymous User'}
-                                                </h3>
-                                                <div className="flex items-center gap-2 text-xs text-slate-500">
-                                                    <span>{user.stats?.followers || 0} {t('profile.followers')}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Streak Badge (The Score) */}
-                                        <div className="flex items-center gap-6">
-                                            <div className="flex flex-col items-center px-4 py-1 bg-orange-50 dark:bg-orange-500/10 rounded-xl border border-orange-100 dark:border-orange-500/20">
-                                                <div className="flex items-center gap-1 text-orange-500 font-black text-lg">
-                                                    <span className="material-symbols-outlined text-[20px] filled">local_fire_department</span>
-                                                    <span>{user.stats?.streak || 0}</span>
-                                                </div>
-                                                <span className="text-[9px] uppercase tracking-[0.1em] font-bold text-orange-600/70 dark:text-orange-400/70">STREAK</span>
+                                        {/* Mobile: Top Row with Rank, Avatar, Name, Follow */}
+                                        <div className="flex items-center gap-3 w-full">
+                                            {/* Rank Number */}
+                                            <div className={`flex-shrink-0 w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center font-black text-base sm:text-lg shadow-sm ${index === 0 ? 'bg-gradient-to-br from-yellow-300 to-amber-400 text-amber-900' :
+                                                index === 1 ? 'bg-gradient-to-br from-slate-200 to-slate-300 text-slate-600' :
+                                                    index === 2 ? 'bg-gradient-to-br from-amber-500 to-orange-600 text-white' :
+                                                        'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                                                }`}>
+                                                {index + 1}
                                             </div>
 
-                                            <div className="flex flex-col items-end">
-                                                <div className="flex items-center gap-1 text-primary font-bold">
-                                                    <span>{user.stats?.minutesListened || 0}</span>
-                                                    <span className="text-xs">min</span>
-                                                </div>
-                                                <span className="text-[9px] uppercase tracking-wider text-slate-400 font-medium">{t('friends.listening_label')}</span>
-                                            </div>
-                                        </div>
-
-                                        {/* Follow Action */}
-                                        <div className="flex-shrink-0 ml-2">
-                                            {currentUser?.uid !== user.uid && (
-                                                <button
-                                                    onClick={(e) => handleFollowToggle(user.uid, e)}
-                                                    className={`p-2 md:px-4 md:py-2 rounded-xl text-sm font-bold transition-all shadow-sm flex items-center gap-2 ${followingMap[user.uid]
-                                                        ? 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-600'
-                                                        : 'bg-primary/10 text-primary hover:bg-primary hover:text-white'
-                                                        }`}
+                                            {/* User Avatar & Name */}
+                                            <div className="flex items-center gap-3 flex-grow min-w-0">
+                                                <div
+                                                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-white dark:border-slate-600 shadow-md bg-slate-200 flex-shrink-0 overflow-hidden ring-2 ring-slate-100 dark:ring-slate-700"
                                                 >
-                                                    <span className="material-symbols-outlined text-[20px]">
-                                                        {followingMap[user.uid] ? 'person_check' : 'person_add'}
-                                                    </span>
-                                                    <span className="hidden md:inline">
-                                                        {followingMap[user.uid] ? t('friends.following_status') : t('profile.follow')}
-                                                    </span>
-                                                </button>
-                                            )}
+                                                    <img
+                                                        src={user.photoURL || DEFAULT_PROFILE_PIC}
+                                                        alt={user.username || 'User'}
+                                                        className="w-full h-full object-cover"
+                                                        onError={(e) => {
+                                                            const target = e.target as HTMLImageElement;
+                                                            target.src = DEFAULT_PROFILE_PIC;
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="flex flex-col min-w-0">
+                                                    <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">
+                                                        {user.username ? `@${user.username}` : 'Anonymous User'}
+                                                    </h3>
+                                                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                                                        <span>{user.stats?.followers || 0} {t('profile.followers')}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Follow Action - visible on mobile */}
+                                            <div className="flex-shrink-0 sm:hidden flex items-center">
+                                                {currentUser?.uid !== user.uid && (
+                                                    <button
+                                                        onClick={(e) => handleFollowToggle(user.uid, e)}
+                                                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-sm ${followingMap[user.uid]
+                                                            ? 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-white'
+                                                            : 'bg-primary text-white'
+                                                            }`}
+                                                    >
+                                                        <span className="material-symbols-outlined text-[20px]">
+                                                            {followingMap[user.uid] ? 'person_check' : 'person_add'}
+                                                        </span>
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Mobile: Stats Row */}
+                                        <div className="flex items-center justify-between gap-3 w-full sm:w-auto sm:justify-end bg-slate-50 dark:bg-slate-800/50 sm:bg-transparent sm:dark:bg-transparent p-3 sm:p-0 rounded-xl sm:rounded-none -mx-0 sm:mx-0">
+                                            {/* Streak Badge */}
+                                            <div className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-500/10 dark:to-amber-500/10 rounded-xl border border-orange-200/50 dark:border-orange-500/20">
+                                                <span className="material-symbols-outlined text-[24px] text-orange-500 filled">local_fire_department</span>
+                                                <div className="flex flex-col">
+                                                    <span className="text-lg font-black text-orange-600 dark:text-orange-400 leading-tight">{user.stats?.streak || 0}</span>
+                                                    <span className="text-[9px] uppercase tracking-wider font-bold text-orange-500/70 dark:text-orange-400/60">STREAK</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Minutes Listened */}
+                                            <div className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-500/10 dark:to-indigo-500/10 rounded-xl border border-blue-200/50 dark:border-blue-500/20">
+                                                <span className="material-symbols-outlined text-[24px] text-primary filled">headphones</span>
+                                                <div className="flex flex-col">
+                                                    <div className="flex items-baseline gap-0.5">
+                                                        <span className="text-lg font-black text-primary leading-tight">{user.stats?.minutesListened || 0}</span>
+                                                        <span className="text-xs font-medium text-primary/70">min</span>
+                                                    </div>
+                                                    <span className="text-[9px] uppercase tracking-wider font-bold text-primary/60">{t('friends.listening_label')}</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Follow Action - Desktop only */}
+                                            <div className="hidden sm:block flex-shrink-0 ml-2">
+                                                {currentUser?.uid !== user.uid && (
+                                                    <button
+                                                        onClick={(e) => handleFollowToggle(user.uid, e)}
+                                                        className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm flex items-center gap-2 ${followingMap[user.uid]
+                                                            ? 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-600'
+                                                            : 'bg-primary text-white hover:bg-blue-600'
+                                                            }`}
+                                                    >
+                                                        <span className="material-symbols-outlined text-[20px]">
+                                                            {followingMap[user.uid] ? 'person_check' : 'person_add'}
+                                                        </span>
+                                                        <span>
+                                                            {followingMap[user.uid] ? t('friends.following_status') : t('profile.follow')}
+                                                        </span>
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                     </Link>
                                 ))}

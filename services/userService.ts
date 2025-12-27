@@ -53,6 +53,7 @@ export const syncUser = async (user: User) => {
             email: user.email,
             photoURL: user.photoURL || DEFAULT_PROFILE_PIC,
             username: null,
+            usernameLowercase: null,
             savedAlbums: [],
             ratings: {}, // Map of albumId -> { personal: number, artistic: number }
             history: [], // Array of albumIds
@@ -69,18 +70,27 @@ export const syncUser = async (user: User) => {
     } else {
         // If user exists but has no photoURL (or explicit null), update it with default or Google's if available now
         const data = userSnap.data();
+        const updates: Record<string, unknown> = {};
+
         if (!data.photoURL) {
-            await updateDoc(userRef, {
-                photoURL: user.photoURL || DEFAULT_PROFILE_PIC
-            });
+            updates.photoURL = user.photoURL || DEFAULT_PROFILE_PIC;
+        }
+
+        // Migrate existing users: add usernameLowercase if they have username but not the lowercase version
+        if (data.username && !data.usernameLowercase) {
+            updates.usernameLowercase = data.username.toLowerCase();
+        }
+
+        if (Object.keys(updates).length > 0) {
+            await updateDoc(userRef, updates);
         }
     }
 };
 
 export const setUsername = async (userId: string, username: string) => {
-    // Check uniqueness first
+    // Check uniqueness first (case-insensitive)
     const usersRef = collection(db, 'users');
-    const q = query(usersRef, where('username', '==', username));
+    const q = query(usersRef, where('usernameLowercase', '==', username.toLowerCase()));
     const snapshot = await getDocs(q);
 
     if (!snapshot.empty) {
@@ -90,13 +100,14 @@ export const setUsername = async (userId: string, username: string) => {
     const userRef = doc(db, 'users', userId);
     await updateDoc(userRef, {
         username: username,
+        usernameLowercase: username.toLowerCase(),
         acceptedTermsAt: new Date().toISOString()
     });
 };
 
 export const checkUsernameAvailability = async (username: string): Promise<boolean> => {
     const usersRef = collection(db, 'users');
-    const q = query(usersRef, where('username', '==', username));
+    const q = query(usersRef, where('usernameLowercase', '==', username.toLowerCase()));
     const snapshot = await getDocs(q);
     return snapshot.empty;
 };
@@ -422,18 +433,14 @@ export const checkIsFollowing = async (currentUserId: string, targetUserId: stri
 export const searchUsers = async (searchTerm: string): Promise<DBUser[]> => {
     if (!searchTerm) return [];
 
-    // Simple search by username
-    // Note: Firestore text search is limited. 
-    // We'll search by displayName >= term and <= term + \uf8ff
-    // This is case-sensitive. Real apps use Algolia or TypeSense.
-    // For this prototype, we assume users type names somewhat correctly or we accept case sensitivity.
-    // To support case-insensitive, we'd need a lowercase searchable field.
+    // Case-insensitive search using lowercase field
+    const searchTermLower = searchTerm.toLowerCase();
 
     const usersRef = collection(db, 'users');
     const q = query(
         usersRef,
-        where('username', '>=', searchTerm),
-        where('username', '<=', searchTerm + '\uf8ff'),
+        where('usernameLowercase', '>=', searchTermLower),
+        where('usernameLowercase', '<=', searchTermLower + '\uf8ff'),
         limit(20)
     );
 

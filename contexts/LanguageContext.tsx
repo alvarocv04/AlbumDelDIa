@@ -277,7 +277,7 @@ const translations = {
     'coming_soon.hours': 'Hours',
     'coming_soon.minutes': 'Minutes',
     'coming_soon.seconds': 'Seconds',
-    'coming_soon.launch_date': 'January 1, 2026',
+    'coming_soon.launch_date': '01/01/2026',
     'coming_soon.feature1_title': 'Daily Album',
     'coming_soon.feature1_desc': 'A new legendary album handpicked every day for you to discover.',
     'coming_soon.feature2_title': 'Community',
@@ -337,7 +337,7 @@ const translations = {
     'library.title': 'Tu Biblioteca',
     'library.filter.all': 'Todos',
     'library.filter.listened': 'Escuchados',
-    'library.filter.saved': 'Guardados',
+    'library.filter.saved': 'Guardado',
     'library.search_placeholder': 'Buscar por álbum o artista...',
     'library.no_albums': 'No se encontraron álbumes',
     'library.try_adjusting': 'Intenta ajustar tus filtros o búsqueda.',
@@ -575,7 +575,7 @@ const translations = {
     'coming_soon.hours': 'Horas',
     'coming_soon.minutes': 'Minutos',
     'coming_soon.seconds': 'Segundos',
-    'coming_soon.launch_date': '1 de Enero de 2026',
+    'coming_soon.launch_date': '01/01/2026',
     'coming_soon.feature1_title': 'Álbum Diario',
     'coming_soon.feature1_desc': 'Un nuevo álbum legendario seleccionado cada día para que lo descubras.',
     'coming_soon.feature2_title': 'Comunidad',
@@ -610,7 +610,7 @@ const translations = {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children?: ReactNode }) => {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguage] = useState<Language>('es');
 
   const t = (key: string) => {
     return translations[language][key as keyof typeof translations['en']] || key;
