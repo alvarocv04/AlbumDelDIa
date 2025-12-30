@@ -1,0 +1,30 @@
+name: Reset Albums for Launch
+
+on:
+  schedule:
+    # 23:00 UTC on December 31st is 00:00 CET on January 1st (if Spain time)
+    # Adjust cron if the user's timezone is different. 
+    # The user's local time is +01:00 (CET).
+    # So 00:00 CET = 23:00 UTC.
+    - cron: '0 23 31 12 *'
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Create service account key
+        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > serviceAccountKey.json
+      
+      - name: Run reset script
+        run: node scripts/resetAlbums.js
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ./serviceAccountKey.json

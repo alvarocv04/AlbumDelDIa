@@ -34,6 +34,8 @@ export interface Album {
   label: string;
   wasShown?: boolean;
   lastShownDate?: string;
+  description_es?: string; // Cached AI-generated description in Spanish
+  description_en?: string; // Cached AI-generated description in English
 }
 
 export interface Badge {

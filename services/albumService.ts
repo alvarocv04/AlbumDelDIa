@@ -123,14 +123,17 @@ export const deleteAlbum = async (albumId: string): Promise<boolean> => {
     }
 };
 export const getDailyHistory = async (): Promise<{ date: string; album: Album }[]> => {
+    const LAUNCH_DATE = '2026-01-01';
     try {
         const historyRef = collection(db, 'daily_history');
         const snapshot = await getDocs(historyRef);
 
-        const history = snapshot.docs.map(doc => ({
-            date: doc.id,
-            album: doc.data() as Album
-        }));
+        const history = snapshot.docs
+            .map(doc => ({
+                date: doc.id,
+                album: doc.data() as Album
+            }))
+            .filter(item => item.date >= LAUNCH_DATE); // Only show history from launch onwards
 
         // Sort by date descending
         return history.sort((a, b) => b.date.localeCompare(a.date));

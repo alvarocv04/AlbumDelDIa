@@ -5,7 +5,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { toggleAlbumSave, rateAlbum, getUserUserData, markAlbumAsListened, unmarkAlbumAsListened, markTrackAsListened, unmarkTrackAsListened, getListenedTracksForAlbum } from '../services/userService';
 import { db } from '../services/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { generateAlbumDescription } from '../services/geminiService';
 import { Album } from '../types';
 import CommentsSection from '../components/CommentsSection';
@@ -64,7 +64,7 @@ const RatingComponent = ({
 
 const AlbumPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const { currentUser } = useAuth();
     const [album, setAlbum] = useState<Album | null>(null);
     const [description, setDescription] = useState<string>('');
@@ -92,10 +92,26 @@ const AlbumPage: React.FC = () => {
                     console.log('Spotify URL:', data.spotifyUrl);
                     setAlbum(data);
 
-                    // Generate description
-                    generateAlbumDescription(data.artist, data.title).then(desc => {
-                        setDescription(desc);
-                    });
+                    // Use cached description or generate new one based on language
+                    const descriptionField = language === 'es' ? 'description_es' : 'description_en';
+                    const cachedDescription = language === 'es' ? data.description_es : data.description_en;
+
+                    if (cachedDescription) {
+                        console.log(`📖 Using cached description (${language})`);
+                        setDescription(cachedDescription);
+                    } else {
+                        console.log(`🤖 Generating new description (${language})...`);
+                        generateAlbumDescription(data.artist, data.title, language).then(async (desc) => {
+                            setDescription(desc);
+                            // Cache the description in Firestore for future use
+                            try {
+                                await updateDoc(docRef, { [descriptionField]: desc });
+                                console.log(`💾 Description cached in Firestore (${language})`);
+                            } catch (cacheError) {
+                                console.error('Failed to cache description:', cacheError);
+                            }
+                        });
+                    }
 
                     // Load User State (Saved & Ratings)
                     if (currentUser) {
@@ -140,7 +156,7 @@ const AlbumPage: React.FC = () => {
         };
 
         fetchAlbum();
-    }, [id, currentUser]);
+    }, [id, currentUser, language]);
 
     const handleSave = async () => {
         if (!id) return;
