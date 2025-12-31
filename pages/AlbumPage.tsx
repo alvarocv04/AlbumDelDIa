@@ -158,6 +158,43 @@ const AlbumPage: React.FC = () => {
         fetchAlbum();
     }, [id, currentUser, language]);
 
+    // SEO: Inject MusicAlbum structured data (JSON-LD)
+    useEffect(() => {
+        if (album) {
+            const script = document.createElement('script');
+            script.type = 'application/ld+json';
+            script.id = 'album-schema';
+            script.textContent = JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "MusicAlbum",
+                "name": album.title,
+                "byArtist": {
+                    "@type": "MusicGroup",
+                    "name": album.artist
+                },
+                "image": album.coverUrl,
+                "datePublished": album.releaseDate,
+                "numTracks": album.totalTracks,
+                "genre": album.genres?.[0] || undefined
+            });
+
+            // Remove existing schema if present
+            const existing = document.getElementById('album-schema');
+            if (existing) existing.remove();
+
+            document.head.appendChild(script);
+
+            // Update page title for SEO
+            document.title = `${album.title} - ${album.artist} | Album Del Día`;
+
+            return () => {
+                const schemaScript = document.getElementById('album-schema');
+                if (schemaScript) schemaScript.remove();
+                document.title = 'Album Del Día';
+            };
+        }
+    }, [album]);
+
     const handleSave = async () => {
         if (!id) return;
 
@@ -184,15 +221,14 @@ const AlbumPage: React.FC = () => {
         setIsListened(newListenedState); // Optimistic UI
 
         if (newListenedState) {
-            await markAlbumAsListened(currentUser.uid, id, album.duration_total_ms);
+            // Optimistically mark all tracks as listened
+            setListenedTracks(album.tracks.map(t => t.id));
+            await markAlbumAsListened(currentUser.uid, id, album.duration_total_ms, album.tracks);
         } else {
+            // Optimistically unmark all tracks
+            setListenedTracks([]);
             await unmarkAlbumAsListened(currentUser.uid, id, album.duration_total_ms);
         }
-    };
-
-    const handleShare = () => {
-        navigator.clipboard.writeText(window.location.href);
-        alert(t('album.link_copied'));
     };
 
     const handleRate = async (type: 'personal' | 'artistic', value: number) => {
@@ -220,13 +256,25 @@ const AlbumPage: React.FC = () => {
 
         const isTrackListened = listenedTracks.includes(trackId);
 
+        // If the album is marked as fully listened, don't allow unmarking individual tracks
+        if (isListened && isTrackListened) {
+            return;
+        }
+
         // Optimistic update
         if (isTrackListened) {
             setListenedTracks(prev => prev.filter(t => t !== trackId));
             await unmarkTrackAsListened(currentUser.uid, id, trackId, trackDurationMs);
         } else {
-            setListenedTracks(prev => [...prev, trackId]);
+            const newList = [...listenedTracks, trackId];
+            setListenedTracks(newList);
             await markTrackAsListened(currentUser.uid, id, trackId, trackDurationMs);
+
+            // Auto-mark album as listened if all tracks are now marked
+            if (newList.length === album.tracks.length && !isListened) {
+                setIsListened(true);
+                await markAlbumAsListened(currentUser.uid, id, album.duration_total_ms, album.tracks);
+            }
         }
     };
 
@@ -241,34 +289,41 @@ const AlbumPage: React.FC = () => {
 
         if (unlistenedTracks.length === 0) {
             // All tracks are already listened - unmark all
-            // Optimistic update: immediately update UI
-            setListenedTracks([]);
 
-            // Then update database in background (don't await each one sequentially)
+            // If the album itself is marked as listened, use handleToggleListened 
+            // to unmark the album properly (handles stats, history, etc.)
+            if (isListened) {
+                await handleToggleListened();
+                return;
+            }
+
+            // Otherwise just unmark tracks as before
+            setListenedTracks([]);
             Promise.all(
                 album.tracks.map(track =>
                     unmarkTrackAsListened(currentUser.uid, id, track.id, track.duration_ms)
                 )
             ).catch(error => {
                 console.error('Error unmarking tracks:', error);
-                // Revert on error
                 setListenedTracks(allTrackIds);
             });
         } else {
             // Mark all unlistened tracks as listened
-            // Optimistic update: immediately update UI
-            setListenedTracks(allTrackIds);
-
-            // Then update database in background (don't await each one sequentially)
-            Promise.all(
-                unlistenedTracks.map(track =>
-                    markTrackAsListened(currentUser.uid, id, track.id, track.duration_ms)
-                )
-            ).catch(error => {
-                console.error('Error marking tracks:', error);
-                // Revert on error
-                setListenedTracks(prev => prev.filter(t => !unlistenedTracks.map(ut => ut.id).includes(t)));
-            });
+            // Use handleToggleListened if the album is not already listened to ensure full sync
+            if (!isListened) {
+                await handleToggleListened();
+            } else {
+                // Already listed as album, but maybe some tracks were missing (shouldn't happen with new logic but safe)
+                setListenedTracks(allTrackIds);
+                Promise.all(
+                    unlistenedTracks.map(track =>
+                        markTrackAsListened(currentUser.uid, id, track.id, track.duration_ms)
+                    )
+                ).catch(error => {
+                    console.error('Error marking tracks:', error);
+                    setListenedTracks(prev => prev.filter(t => !unlistenedTracks.map(ut => ut.id).includes(t)));
+                });
+            }
         }
     };
 
@@ -307,7 +362,7 @@ const AlbumPage: React.FC = () => {
                                 <div className="absolute inset-0 bg-cover bg-center blur-2xl opacity-40 scale-110" style={{ backgroundImage: `url('${album.coverUrl}')` }}></div>
                                 <div className="relative h-full w-full bg-cover bg-center" style={{ backgroundImage: `url('${album.coverUrl}')` }}>
                                     {/* Overlay Play Button */}
-                                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer backdrop-blur-[2px]" onClick={() => window.open(album.spotifyUrl, '_blank')}>
+                                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer backdrop-blur-[2px]" onClick={() => window.open(album.spotifyUrl, '_blank', 'noopener,noreferrer')}>
                                         <button className="bg-primary text-white rounded-full p-4 hover:scale-105 transition-transform">
                                             <span className="material-symbols-outlined text-[48px] filled">play_circle</span>
                                         </button>
@@ -317,22 +372,19 @@ const AlbumPage: React.FC = () => {
                             {/* Quick Actions */}
                             <div className="flex flex-col gap-3">
                                 <div className="flex gap-3">
-                                    <button onClick={() => window.open(album.spotifyUrl, '_blank')} className="flex-1 h-12 flex items-center justify-center gap-2 rounded-full bg-[#1DB954] text-white font-medium text-sm hover:bg-[#1ed760] transition-colors shadow-lg shadow-[#1DB954]/20">
+                                    <button onClick={() => window.open(album.spotifyUrl, '_blank', 'noopener,noreferrer')} className="flex-1 h-12 flex items-center justify-center gap-2 rounded-full bg-[#1DB954] text-white font-medium text-sm hover:bg-[#1ed760] transition-colors shadow-lg shadow-[#1DB954]/20">
                                         <span className="material-symbols-outlined filled text-[20px]">play_arrow</span>
                                         Spotify
                                     </button>
                                     {album.appleMusicUrl && (
-                                        <button onClick={() => window.open(album.appleMusicUrl, '_blank')} className="flex-1 h-12 flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FA243C] to-[#FA5C7C] text-white font-medium text-sm hover:opacity-90 transition-opacity shadow-lg shadow-[#FA243C]/20">
+                                        <button onClick={() => window.open(album.appleMusicUrl, '_blank', 'noopener,noreferrer')} className="flex-1 h-12 flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FA243C] to-[#FA5C7C] text-white font-medium text-sm hover:opacity-90 transition-opacity shadow-lg shadow-[#FA243C]/20">
                                             <span className="material-symbols-outlined filled text-[20px]">play_arrow</span>
                                             Apple Music
                                         </button>
                                     )}
                                 </div>
                                 <div className="flex flex-wrap gap-3">
-                                    <button onClick={handleShare} className="flex-1 min-w-fit h-12 flex items-center justify-center gap-2 px-5 rounded-full bg-white dark:bg-[#282e39] text-slate-900 dark:text-white font-medium text-sm hover:bg-slate-50 dark:hover:bg-[#323946] transition-colors border border-slate-200 dark:border-transparent whitespace-nowrap">
-                                        <span className="material-symbols-outlined text-[20px]">ios_share</span>
-                                        {t('album.share')}
-                                    </button>
+
                                     <button onClick={handleSave} className="flex-1 min-w-fit h-12 flex items-center justify-center gap-2 px-5 rounded-full bg-white dark:bg-[#282e39] text-slate-900 dark:text-white font-medium text-sm hover:bg-slate-50 dark:hover:bg-[#323946] transition-colors border border-slate-200 dark:border-transparent whitespace-nowrap">
                                         <span className={`material-symbols-outlined text-[20px] ${isSaved ? 'filled text-primary' : ''}`}>{isSaved ? 'check_circle' : 'playlist_add'}</span>
                                         {isSaved ? t('album.saved_true') : t('album.saved_false')}
@@ -447,12 +499,15 @@ const AlbumPage: React.FC = () => {
                                 <div className="flex flex-col gap-1 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                                     {album.tracks && album.tracks.map((track) => {
                                         const isTrackListened = listenedTracks.includes(track.id);
+                                        const isLocked = isListened && isTrackListened; // Can't unmark if album is listened
                                         return (
                                             <div
                                                 key={track.id}
-                                                className={`flex items-center justify-between p-3 rounded-xl transition-all group cursor-pointer ${isTrackListened
-                                                    ? 'bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30'
-                                                    : 'hover:bg-slate-50 dark:hover:bg-[#282e39]'
+                                                className={`flex items-center justify-between p-3 rounded-xl transition-all group ${isLocked
+                                                    ? 'bg-green-50 dark:bg-green-900/20 cursor-default'
+                                                    : isTrackListened
+                                                        ? 'bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 cursor-pointer'
+                                                        : 'hover:bg-slate-50 dark:hover:bg-[#282e39] cursor-pointer'
                                                     }`}
                                                 onClick={() => handleToggleTrackListened(track.id, track.duration_ms)}
                                             >
@@ -473,7 +528,7 @@ const AlbumPage: React.FC = () => {
                                                         <button
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                window.open(track.preview_url!, '_blank');
+                                                                window.open(track.preview_url!, '_blank', 'noopener,noreferrer');
                                                             }}
                                                             className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-full hover:bg-primary/10 text-primary"
                                                             title={t('album.preview_url')}

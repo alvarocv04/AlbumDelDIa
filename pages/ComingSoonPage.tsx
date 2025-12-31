@@ -76,7 +76,7 @@ const ComingSoonPage: React.FC = () => {
                         <span className="material-symbols-outlined text-5xl text-white">album</span>
                     </div>
                     <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/70 mb-2">
-                        AlbumDelDía
+                        Album Del Día
                     </h1>
                     <p className="text-xl md:text-2xl text-primary font-semibold tracking-wide">
                         {t('coming_soon.tagline')}
@@ -153,7 +153,7 @@ const ComingSoonPage: React.FC = () => {
 
             {/* Footer */}
             <div className="absolute bottom-6 text-center text-text-secondary text-sm">
-                <p>© 2026 AlbumDelDía. {t('coming_soon.rights_reserved')}</p>
+                <p>© 2026 Album Del Día. {t('coming_soon.rights_reserved')}</p>
             </div>
         </div>
     );

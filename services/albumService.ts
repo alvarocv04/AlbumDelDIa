@@ -123,7 +123,7 @@ export const deleteAlbum = async (albumId: string): Promise<boolean> => {
     }
 };
 export const getDailyHistory = async (): Promise<{ date: string; album: Album }[]> => {
-    const LAUNCH_DATE = '2026-01-01';
+    const LAUNCH_DATE = '2025-12-01';
     try {
         const historyRef = collection(db, 'daily_history');
         const snapshot = await getDocs(historyRef);

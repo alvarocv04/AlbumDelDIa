@@ -177,7 +177,7 @@ const CalendarPage: React.FC = () => {
                                                     <div className="relative w-[85%] h-[65%] sm:w-full sm:h-full sm:max-w-[80px] sm:max-h-[80px] aspect-square rounded-md sm:rounded-xl overflow-hidden shadow-md group-hover:shadow-xl group-hover:scale-110 group-hover:-rotate-3 transition-all duration-500">
                                                         <img
                                                             src={album.coverUrl}
-                                                            alt={album.title}
+                                                            alt={`${album.title} - Portada del álbum de ${album.artist}`}
                                                             className="w-full h-full object-cover"
                                                             loading="lazy"
                                                         />

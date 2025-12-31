@@ -12,13 +12,14 @@ import CalendarPage from './pages/CalendarPage';
 import ComingSoonPage from './pages/ComingSoonPage';
 import SetUsernameModal from './components/SetUsernameModal';
 import FAQPage from './pages/FAQPage';
+import RankingPage from './pages/RankingPage';
 
 import { LanguageProvider } from './contexts/LanguageContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 
 // Launch date: January 1, 2026
-const LAUNCH_DATE = new Date('2026-01-01T00:00:00');
+const LAUNCH_DATE = new Date('2025-12-01T00:00:00');
 
 // Developer bypass: allows skipping the Coming Soon page
 // Use ?dev=true in URL to activate, or it persists in localStorage
@@ -81,6 +82,7 @@ const App: React.FC = () => {
                             <Route path="/calendar" element={<CalendarPage />} />
                             <Route path="/album/:id" element={<AlbumPage />} />
                             <Route path="/admin" element={<AdminPage />} />
+                            <Route path="/ranking" element={<RankingPage />} />
                             <Route path="/faq" element={<FAQPage />} />
 
                         </Routes>

@@ -22,29 +22,32 @@ const BadgeList: React.FC<BadgeListProps> = ({ allBadges, userBadges }) => {
                     <div
                         key={badge.id}
                         className={`
-              relative p-4 rounded-xl border flex flex-col items-center justify-center text-center transition-all duration-300
-              ${isEarned
-                                ? 'bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/50 shadow-lg shadow-purple-500/10'
-                                : 'bg-white/5 border-white/10 opacity-60 grayscale'
+                            relative p-5 rounded-2xl border flex flex-col items-center justify-center text-center transition-all duration-500
+                            ${isEarned
+                                ? 'bg-white dark:bg-surface-dark border-purple-500/30 shadow-xl shadow-purple-500/5'
+                                : 'bg-slate-50/50 dark:bg-white/5 border-slate-200 dark:border-white/10 opacity-60 grayscale'
                             }
-            `}
+                        `}
                     >
-                        <div className={`text-4xl mb-2 ${isEarned ? 'animate-bounce-slow' : ''}`}>
+                        {isEarned && (
+                            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-2xl pointer-events-none"></div>
+                        )}
+
+                        <div className={`text-5xl mb-3 relative z-10 transition-transform duration-500 ${isEarned ? 'animate-bounce-slow drop-shadow-md' : 'opacity-50'}`}>
                             {badge.icon}
                         </div>
-                        <h3 className="font-bold text-sm text-white mb-1">{name}</h3>
-                        <p className="text-xs text-gray-400">{description}</p>
+
+                        <h3 className="font-bold text-sm text-slate-900 dark:text-white mb-1.5 relative z-10 tracking-tight">{name}</h3>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight relative z-10 line-clamp-2">{description}</p>
 
                         {isEarned && (
-                            <div className="absolute top-2 right-2 text-yellow-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
+                            <div className="absolute top-3 right-3 text-purple-500 z-10 animate-scale-in">
+                                <span className="material-symbols-outlined text-lg filled">verified</span>
                             </div>
                         )}
 
                         {!isEarned && (
-                            <div className="absolute inset-0 bg-black/20 rounded-xl" />
+                            <div className="absolute inset-0 bg-slate-200/5 dark:bg-black/10 rounded-2xl pointer-events-none" />
                         )}
                     </div>
                 );

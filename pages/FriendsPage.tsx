@@ -232,7 +232,7 @@ const FriendsPage: React.FC = () => {
                                                 >
                                                     <img
                                                         src={user.photoURL || DEFAULT_PROFILE_PIC}
-                                                        alt={user.username || 'User'}
+                                                        alt={`Foto de perfil de ${user.username || 'usuario'}`}
                                                         className="w-full h-full object-cover"
                                                         onError={(e) => {
                                                             const target = e.target as HTMLImageElement;
@@ -328,7 +328,7 @@ const FriendsPage: React.FC = () => {
                                                     >
                                                         <img
                                                             src={user.photoURL || DEFAULT_PROFILE_PIC}
-                                                            alt={user.username || 'User'}
+                                                            alt={`Foto de perfil de ${user.username || 'usuario'}`}
                                                             className="w-full h-full object-cover"
                                                             onError={(e) => {
                                                                 const target = e.target as HTMLImageElement;

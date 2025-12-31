@@ -5,9 +5,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { DEFAULT_PROFILE_PIC } from '../services/userService';
 
-const NavLink = ({ to, children, active }: { to: string; children?: React.ReactNode; active: boolean }) => (
+const NavLink = ({ to, children, active, title }: { to: string; children?: React.ReactNode; active: boolean; title?: string }) => (
     <Link
         to={to}
+        title={title}
         className={`text-sm font-medium leading-normal transition-colors ${active ? 'text-primary' : 'text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-white'}`}
     >
         {children}
@@ -51,7 +52,36 @@ const Header: React.FC = () => {
     const { theme, toggleTheme } = useTheme();
     const [isLangOpen, setIsLangOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isVisible, setIsVisible] = useState(true);
+    const [lastScrollY, setLastScrollY] = useState(0);
     const langRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+
+            // Always show header at the top
+            if (currentScrollY <= 50) {
+                setIsVisible(true);
+                setLastScrollY(currentScrollY);
+                return;
+            }
+
+            // Scroll down: hide if scrolled enough
+            if (currentScrollY > lastScrollY && currentScrollY > 120) {
+                setIsVisible(false);
+            }
+            // Scroll up: show
+            else if (currentScrollY < lastScrollY) {
+                setIsVisible(true);
+            }
+
+            setLastScrollY(currentScrollY);
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [lastScrollY]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -75,7 +105,10 @@ const Header: React.FC = () => {
     }, [location]);
 
     return (
-        <header className="sticky top-0 z-40 flex flex-col w-full border-b border-solid border-slate-200 dark:border-border-dark bg-background-light dark:bg-background-dark/95 backdrop-blur-md">
+        <header
+            className={`sticky top-0 z-40 flex flex-col w-full border-b border-solid border-slate-200 dark:border-border-dark bg-background-light dark:bg-background-dark/95 backdrop-blur-md transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'
+                }`}
+        >
             <div className="flex items-center justify-between px-4 sm:px-10 py-3 w-full">
                 <div className="flex items-center gap-4">
                     {/* Mobile Menu Button */}
@@ -92,13 +125,14 @@ const Header: React.FC = () => {
                         <div className="size-8 text-primary flex items-center justify-center">
                             <span className="material-symbols-outlined text-[32px]">album</span>
                         </div>
-                        <h2 className="text-lg font-bold leading-tight tracking-[-0.015em] hidden sm:block">albumdeldia</h2>
+                        <h2 className="text-lg font-bold leading-tight tracking-[-0.015em] hidden sm:block">Album Del Día</h2>
                     </Link>
                     <nav className="hidden md:flex items-center gap-9 ml-8">
-                        <NavLink to="/" active={location.pathname === '/'}>{t('nav.home')}</NavLink>
-                        <NavLink to="/calendar" active={location.pathname === '/calendar'}>{t('nav.calendar')}</NavLink>
-                        <NavLink to="/friends" active={location.pathname === '/friends'}>{t('nav.community')}</NavLink>
-                        <NavLink to="/details" active={location.pathname === '/details'}>{t('nav.library')}</NavLink>
+                        <NavLink to="/" active={location.pathname === '/'} title="Ir a la página principal">{t('nav.home')}</NavLink>
+                        <NavLink to="/calendar" active={location.pathname === '/calendar'} title="Ver calendario de álbumes diarios">{t('nav.calendar')}</NavLink>
+                        <NavLink to="/friends" active={location.pathname === '/friends'} title="Ver comunidad y rankings de usuarios">{t('nav.community')}</NavLink>
+                        <NavLink to="/details" active={location.pathname === '/details'} title="Ver tu biblioteca de álbumes">{t('nav.library')}</NavLink>
+                        <NavLink to="/ranking" active={location.pathname === '/ranking'} title="Ver tu ranking musical personal">{t('nav.ranking')}</NavLink>
                     </nav>
                 </div>
                 <div className="flex items-center justify-end gap-2 sm:gap-4">
@@ -173,7 +207,7 @@ const Header: React.FC = () => {
                     >
                         <img
                             src={dbUser?.photoURL || currentUser?.photoURL || DEFAULT_PROFILE_PIC}
-                            alt="Profile"
+                            alt={dbUser?.username ? `Foto de perfil de @${dbUser.username}` : "Tu foto de perfil"}
                             className="w-full h-full object-cover"
                             onError={(e) => {
                                 const target = e.target as HTMLImageElement;
@@ -203,6 +237,10 @@ const Header: React.FC = () => {
                         <Link to="/details" className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${location.pathname === '/details' ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5'}`}>
                             <span className="material-symbols-outlined">library_music</span>
                             {t('nav.library')}
+                        </Link>
+                        <Link to="/ranking" className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${location.pathname === '/ranking' ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5'}`}>
+                            <span className="material-symbols-outlined">military_tech</span>
+                            {t('nav.ranking')}
                         </Link>
                     </nav>
                 </div>

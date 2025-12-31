@@ -12,7 +12,7 @@ import LoginModal from '../components/LoginModal';
 import { getAllBadges } from '../services/badgeService';
 
 const HomePage: React.FC = () => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const { currentUser } = useAuth();
     const [dailyAlbum, setDailyAlbum] = useState<Album | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -89,6 +89,7 @@ const HomePage: React.FC = () => {
             <Header />
             <main className="flex flex-col items-center flex-1 px-4 sm:px-10 py-6 sm:py-10 animate-fade-in">
                 <div className="layout-content-container flex flex-col max-w-[1024px] w-full flex-1 gap-8">
+                    <h1 className="sr-only">Album Del Día</h1>
 
                     {/* Hero Section: Daily Album */}
                     <section className="w-full">
@@ -120,7 +121,7 @@ const HomePage: React.FC = () => {
                                                     <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 text-xs font-medium capitalize">{dailyAlbum.genres[0]}</span>
                                                 )}
                                             </div>
-                                            <h1 className="text-slate-900 dark:text-white text-4xl sm:text- Leviathan 5xl font-black leading-tight tracking-tight">{dailyAlbum.title}</h1>
+                                            <h2 className="text-slate-900 dark:text-white text-4xl sm:text-5xl font-black leading-tight tracking-tight">{dailyAlbum.title}</h2>
                                             <p className="text-slate-500 dark:text-slate-400 text-lg sm:text- Leviathan xl font-medium mt-1">{t('common.by')} <span className="text-slate-900 dark:text-white">{dailyAlbum.artist}</span></p>
                                         </div>
 
@@ -230,14 +231,16 @@ const HomePage: React.FC = () => {
                                         userStats.userBadges.slice(-3).reverse().map((ub) => {
                                             const badge = allBadges.find(b => b.id === ub.badgeId);
                                             if (!badge) return null;
+                                            const name = language === 'es' ? (badge.name_es || badge.name) : (badge.name_en || badge.name);
+                                            const description = language === 'es' ? (badge.description_es || badge.description) : (badge.description_en || badge.description);
                                             return (
                                                 <div key={ub.badgeId} className="flex items-center gap-4 p-4 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors cursor-pointer group">
                                                     <div className="size-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform text-2xl">
                                                         {badge.icon}
                                                     </div>
                                                     <div className="flex flex-col">
-                                                        <span className="text-slate-900 dark:text-white font-bold text-sm tracking-tight">{badge.name}</span>
-                                                        <span className="text-slate-500 dark:text-slate-400 text-xs line-clamp-1">{badge.description}</span>
+                                                        <span className="text-slate-900 dark:text-white font-bold text-sm tracking-tight">{name}</span>
+                                                        <span className="text-slate-500 dark:text-slate-400 text-xs line-clamp-1">{description}</span>
                                                     </div>
                                                 </div>
                                             );
@@ -255,6 +258,31 @@ const HomePage: React.FC = () => {
                         </aside>
 
                     </div>
+
+                    {/* SEO Content Section */}
+                    <section className="flex flex-col gap-6 mt-8 p-6 bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-border-dark shadow-sm">
+                        <div className="flex flex-col gap-4">
+                            <h2 className="text-slate-900 dark:text-white text-2xl font-bold">{t('home.seo_title')}</h2>
+                            <div className="text-slate-600 dark:text-slate-300 space-y-4 text-base leading-relaxed">
+                                <p>
+                                    {t('home.seo_p1')}
+                                </p>
+                                <p>
+                                    {t('home.seo_p2')}
+                                </p>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-4">{t('home.seo_why')}</h3>
+                                <ul className="list-disc pl-5 space-y-2">
+                                    <li>{t('home.seo_li1')}</li>
+                                    <li>{t('home.seo_li2')}</li>
+                                    <li>{t('home.seo_li3')}</li>
+                                    <li>{t('home.seo_li4')}</li>
+                                </ul>
+                                <p>
+                                    {t('home.seo_footer')}
+                                </p>
+                            </div>
+                        </div>
+                    </section>
                 </div>
             </main>
 

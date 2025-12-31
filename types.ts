@@ -88,6 +88,11 @@ export interface Comment {
   userPhotoURL: string | null;
   content: string;
   createdAt: string; // ISO string
+  votes: number;
+  upvotedBy: string[];
+  downvotedBy: string[];
+  parentId?: string;
+  replyCount?: number;
 }
 
 export interface UserActivity {

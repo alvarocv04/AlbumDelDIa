@@ -199,6 +199,33 @@ const ProfilePage: React.FC = () => {
         }
     };
 
+    const handleShare = async () => {
+        // Construct the shareable profile URL using the user's ID
+        const uid = currentUser?.uid || targetUserId;
+        const profileUrl = `${window.location.origin}${window.location.pathname}#/profile/${uid}`;
+        const shareText = `${t('profile.share_message')}${profileUrl}`;
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Album Del Día',
+                    text: t('profile.share_message'),
+                    url: profileUrl,
+                });
+            } catch (error) {
+                console.error('Error sharing:', error);
+            }
+        } else {
+            // Fallback to clipboard
+            try {
+                await navigator.clipboard.writeText(shareText);
+                alert(t('album.link_copied'));
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+            }
+        }
+    };
+
     return (
         <div className="relative flex h-full min-h-screen w-full flex-col bg-background-light dark:bg-background-dark">
             <Header />
@@ -211,7 +238,7 @@ const ProfilePage: React.FC = () => {
                                 <div className="relative">
                                     <img
                                         src={user.photoURL || user.avatar || DEFAULT_PROFILE_PIC}
-                                        alt={user.username}
+                                        alt={`Foto de perfil de ${user.username || 'usuario'}`}
                                         className="aspect-square rounded-full h-32 w-32 ring-4 ring-slate-100 dark:ring-[#282e39] object-cover"
                                         onError={(e) => {
                                             const target = e.target as HTMLImageElement;
@@ -236,7 +263,7 @@ const ProfilePage: React.FC = () => {
                                     </h1>
                                     {user.isVerified && <span className="material-symbols-outlined text-primary fill-current text-[20px]" title={t('profile.verified')}>verified</span>}
                                 </div>
-                                <p className="text-sm font-medium text-primary">{user.email || user.handle} • Sonic Explorer</p>
+                                <p className="text-sm font-medium text-primary">{t('profile.sonic_explorer') || 'Sonic Explorer'}</p>
 
                                 <div className="flex gap-4 mt-3 justify-center md:justify-start text-sm">
                                     <span className="text-slate-900 dark:text-white font-bold">{user.stats?.followers || 0} <span className="font-normal text-slate-500 dark:text-[#9da6b9]">{t('profile.followers')}</span></span>
@@ -247,6 +274,14 @@ const ProfilePage: React.FC = () => {
                         <div className="flex flex-wrap gap-3 w-full md:w-auto mt-4 md:mt-2 justify-center md:justify-end">
                             {viewingSelf ? (
                                 <>
+                                    <button
+                                        onClick={handleShare}
+                                        className="flex items-center justify-center gap-2 px-6 h-11 bg-primary text-white hover:bg-blue-600 shadow-lg shadow-blue-500/30 text-sm font-bold rounded-full transition-all active:scale-95"
+                                    >
+                                        <span className="material-symbols-outlined text-[18px]">share</span>
+                                        {t('profile.share') || 'Compartir'}
+                                    </button>
+
                                     <button
                                         onClick={async () => {
                                             const newUsername = window.prompt(t('profile.prompt_username'));
@@ -439,20 +474,22 @@ const ProfilePage: React.FC = () => {
                             </div>
                         </div>
                     </div>
-                    {/* Modal */}
-                    <BadgeModal
-                        isOpen={showBadgesModal}
-                        onClose={() => setShowBadgesModal(false)}
-                        allBadges={allBadges}
-                        userBadges={userBadges}
-                    />
-                    <ImageUploadModal
-                        isOpen={showUploadModal}
-                        onClose={() => setShowUploadModal(false)}
-                        onSave={handleProfilePicSave}
-                    />
                 </div>
             </div>
+
+            {/* Modals outside animate-fade-in for correct fixed positioning */}
+            <BadgeModal
+                isOpen={showBadgesModal}
+                onClose={() => setShowBadgesModal(false)}
+                allBadges={allBadges}
+                userBadges={userBadges}
+            />
+            <ImageUploadModal
+                isOpen={showUploadModal}
+                onClose={() => setShowUploadModal(false)}
+                onSave={handleProfilePicSave}
+            />
+
         </div >
     );
 };
@@ -489,7 +526,7 @@ const SavedAlbumCard: React.FC<{ albumId: string }> = ({ albumId }) => {
             <div className="absolute inset-0 bg-slate-200 dark:bg-slate-800 animate-pulse" />
             <img
                 src={album.coverUrl}
-                alt={album.title}
+                alt={`${album.title} - Portada del álbum de ${album.artist}`}
                 className="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-110 duration-500"
                 onLoad={(e) => (e.currentTarget.previousSibling as HTMLElement).style.display = 'none'}
             />
