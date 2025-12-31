@@ -263,7 +263,7 @@ const ProfilePage: React.FC = () => {
                                     </h1>
                                     {user.isVerified && <span className="material-symbols-outlined text-primary fill-current text-[20px]" title={t('profile.verified')}>verified</span>}
                                 </div>
-                                <p className="text-sm font-medium text-primary">{t('profile.sonic_explorer') || 'Sonic Explorer'}</p>
+
 
                                 <div className="flex gap-4 mt-3 justify-center md:justify-start text-sm">
                                     <span className="text-slate-900 dark:text-white font-bold">{user.stats?.followers || 0} <span className="font-normal text-slate-500 dark:text-[#9da6b9]">{t('profile.followers')}</span></span>

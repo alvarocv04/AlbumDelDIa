@@ -48,7 +48,7 @@ function initializeFirebase() {
 const db = initializeFirebase();
 
 async function selectDailyAlbum() {
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Madrid' }); // YYYY-MM-DD in Spain
     const dailyRef = db.collection('daily_history').doc(today);
 
     try {

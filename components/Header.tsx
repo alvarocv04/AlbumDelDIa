@@ -183,14 +183,7 @@ const Header: React.FC = () => {
                         )}
                     </div>
 
-                    <label className="hidden sm:flex flex-col min-w-40 h-10 max-w-64 relative group">
-                        <div className="flex w-full flex-1 items-stretch rounded-full h-full border border-slate-200 dark:border-border-dark bg-white dark:bg-surface-dark group-focus-within:border-primary transition-colors overflow-hidden">
-                            <div className="text-slate-400 flex items-center justify-center pl-4">
-                                <span className="material-symbols-outlined text-[20px]">search</span>
-                            </div>
-                            <input className="flex w-full min-w-0 flex-1 resize-none overflow-hidden bg-transparent text-slate-900 dark:text-white focus:outline-0 placeholder:text-slate-400 px-3 text-sm font-normal leading-normal border-none focus:ring-0 h-full" placeholder={t('header.search_placeholder')} />
-                        </div>
-                    </label>
+
                     {currentUser && (
                         <button
                             onClick={logout}

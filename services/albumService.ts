@@ -4,7 +4,7 @@ import { doc, getDoc, setDoc, collection, getDocs, updateDoc, deleteDoc, Timesta
 import { Album } from '../types';
 
 export const getDailyAlbum = async (): Promise<Album | null> => {
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Madrid' }); // YYYY-MM-DD in Spain
     const dailyRef = doc(db, 'daily_history', today);
 
     try {
