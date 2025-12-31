@@ -10,6 +10,8 @@ import { generateAlbumDescription } from '../services/geminiService';
 import { Album } from '../types';
 import CommentsSection from '../components/CommentsSection';
 import LoginModal from '../components/LoginModal';
+import { useNotification } from '../contexts/NotificationContext';
+import AlbumChatbot from '../components/AlbumChatbot';
 
 const RatingComponent = ({
     icon,
@@ -76,6 +78,7 @@ const AlbumPage: React.FC = () => {
     const [personalRating, setPersonalRating] = useState(0);
     const [artisticRating, setArtisticRating] = useState(0);
     const [listenedTracks, setListenedTracks] = useState<string[]>([]);
+    const { showBadgeNotification } = useNotification();
 
     useEffect(() => {
         const fetchAlbum = async () => {
@@ -223,7 +226,10 @@ const AlbumPage: React.FC = () => {
         if (newListenedState) {
             // Optimistically mark all tracks as listened
             setListenedTracks(album.tracks.map(t => t.id));
-            await markAlbumAsListened(currentUser.uid, id, album.duration_total_ms, album.tracks);
+            const newBadges = await markAlbumAsListened(currentUser.uid, id, album.duration_total_ms, album.tracks);
+            if (newBadges && newBadges.length > 0) {
+                newBadges.forEach(badge => showBadgeNotification(badge));
+            }
         } else {
             // Optimistically unmark all tracks
             setListenedTracks([]);
@@ -268,12 +274,18 @@ const AlbumPage: React.FC = () => {
         } else {
             const newList = [...listenedTracks, trackId];
             setListenedTracks(newList);
-            await markTrackAsListened(currentUser.uid, id, trackId, trackDurationMs);
+            const newBadges = await markTrackAsListened(currentUser.uid, id, trackId, trackDurationMs);
+            if (newBadges && newBadges.length > 0) {
+                newBadges.forEach(badge => showBadgeNotification(badge));
+            }
 
             // Auto-mark album as listened if all tracks are now marked
             if (newList.length === album.tracks.length && !isListened) {
                 setIsListened(true);
-                await markAlbumAsListened(currentUser.uid, id, album.duration_total_ms, album.tracks);
+                const albumBadges = await markAlbumAsListened(currentUser.uid, id, album.duration_total_ms, album.tracks);
+                if (albumBadges && albumBadges.length > 0) {
+                    albumBadges.forEach(badge => showBadgeNotification(badge));
+                }
             }
         }
     };
@@ -568,6 +580,12 @@ const AlbumPage: React.FC = () => {
                 isOpen={isLoginModalOpen}
                 onClose={() => setIsLoginModalOpen(false)}
             />
+            {currentUser && album && (
+                <AlbumChatbot
+                    albumTitle={album.title}
+                    artistName={album.artist}
+                />
+            )}
         </div>
     );
 };

@@ -304,7 +304,7 @@ const ProfilePage: React.FC = () => {
                                         <span className="material-symbols-outlined text-[18px]">logout</span>
                                         {t('header.logout')}
                                     </button>
-                                    {currentUser.email === 'alvarocv04@gmail.com' && (
+                                    {currentUser.email === 'alvarocastrovalverde@gmail.com' && (
                                         <button
                                             onClick={() => navigate('/admin')}
                                             className="flex items-center justify-center gap-2 px-6 h-11 bg-slate-900 dark:bg-white text-white dark:text-slate-900 border border-transparent hover:bg-slate-700 dark:hover:bg-slate-200 text-sm font-bold rounded-full transition-all"

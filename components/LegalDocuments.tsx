@@ -25,7 +25,7 @@ const LegalDocuments: React.FC<LegalDocumentsProps> = ({ type, onClose }) => {
                             <h3 className="text-xl font-semibold mt-6 mb-3 text-white">1. Responsable del Tratamiento</h3>
                             <p className="text-gray-400">
                                 <strong>Titular:</strong> Álvaro Castro Valverde<br />
-                                <strong>Contacto:</strong> alvarocastrovalverde@gmail.com<br />
+                                <strong>Contacto:</strong> info@albumdeldia.app<br />
                                 <strong>Actividad:</strong> Gestión de la plataforma personal y no comercial "AlbumDelDia".
                             </p>
 
@@ -60,12 +60,12 @@ const LegalDocuments: React.FC<LegalDocumentsProps> = ({ type, onClose }) => {
 
                             <h3 className="text-xl font-semibold mt-6 mb-3 text-white">6. Sus Derechos (ARCO+)</h3>
                             <p className="text-gray-400">
-                                Usted tiene derecho a acceder, rectificar y suprimir sus datos, así como a la portabilidad y limitación de su tratamiento. Para ejercerlos, escriba a alvarocastrovalverde@gmail.com. Si considera que no hemos atendido correctamente sus derechos, puede presentar una reclamación ante la Agencia Española de Protección de Datos (AEPD).
+                                Usted tiene derecho a acceder, rectificar y suprimir sus datos, así como a la portabilidad y limitación de su tratamiento. Para ejercerlos, escriba a info@albumdeldia.app. Si considera que no hemos atendido correctamente sus derechos, puede presentar una reclamación ante la Agencia Española de Protección de Datos (AEPD).
                             </p>
 
                             <h3 className="text-xl font-semibold mt-6 mb-3 text-white">7. Política de Cookies</h3>
                             <p className="text-gray-400">
-                                Utilizamos únicamente cookies técnicas y de sesión necesarias para gestionar el inicio de sesión con Google y mantener la seguridad de su cuenta. Al ser estrictamente necesarias para el servicio, no requieren banner de consentimiento, pero le informamos de su uso mediante esta política.
+                                Utilizamos cookies técnicas necesarias para el funcionamiento de la app (autenticación y preferencias). Además, utilizamos cookies analíticas (Google Analytics) para entender cómo se usa nuestra plataforma, pero estas solo se activarán si nos das tu consentimiento explícito a través del banner de cookies. Puedes cambiar tu preferencia borrando los datos de navegación de este sitio.
                             </p>
                         </>
                     ) : (

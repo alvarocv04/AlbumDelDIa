@@ -264,7 +264,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ albumId }) => {
                                     {formatDate(comment.createdAt)}
                                 </span>
                             </div>
-                            {(user && (user.uid === comment.userId || user.email === 'alvarocv04@gmail.com')) && (
+                            {(user && (user.uid === comment.userId || user.email === 'alvarocastrovalverde@gmail.com')) && (
                                 <button
                                     onClick={() => handleDelete(comment.id, comment.parentId)}
                                     className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all"

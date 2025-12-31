@@ -6,7 +6,7 @@ import { getAllAlbums, deleteAlbum, saveAlbum } from '../services/albumService';
 import { getAllBadges, deleteBadge, saveBadge } from '../services/badgeService';
 import { useNavigate } from 'react-router-dom';
 
-const ADMIN_EMAILS = ['alvarocv04@gmail.com'];
+const ADMIN_EMAILS = ['alvarocastrovalverde@gmail.com'];
 
 const AdminPage: React.FC = () => {
     const { currentUser } = useAuth();

@@ -98,6 +98,8 @@ const translations = {
     'profile.followers': 'Followers',
     'profile.following': 'Following',
     'profile.follow': 'Follow',
+    'notification.badge_unlocked': 'Badge Unlocked!',
+    'notification.congratulations': 'Congratulations! You earned the badge:',
     'profile.edit': 'Edit Profile',
     'profile.badges': 'Badges',
     'profile.badges_achievements': 'Badges & Achievements',
@@ -154,6 +156,10 @@ const translations = {
     'chat.bot_name': 'Al the Music Bot',
     'chat.online': 'Online',
     'chat.send': 'Send',
+    'chat.assistant_title': 'Album Expert',
+    'chat.ask_curiosity': 'Ask a curiosity...',
+    'chat.error': 'Error connecting to AI.',
+    'chat.restriction': 'I can only talk about this album and artist. Try asking something else!',
 
     'album.listen_spotify': 'Listen on Spotify',
     'album.share': 'Share',
@@ -340,7 +346,13 @@ const translations = {
     'home.seo_li2': 'Personalized History: Save your favorite albums and build a music library that reflects your tastes.',
     'home.seo_li3': 'Advanced Stats: Visualize your minutes listened, maintain your daily streak, and unlock exclusive badges.',
     'home.seo_li4': 'Active Community: Follow your friends, discover what they are listening to, and participate in debates about the albums of the moment.',
-    'home.seo_footer': 'Whether you are an experienced audiophile or just looking to expand your horizons, here you will find your next favorite album. Start your streak today, connect with other passionate people, and let music be the protagonist of your daily life.'
+    'home.seo_footer': 'Whether you are an experienced audiophile or just looking to expand your horizons, here you will find your next favorite album. Start your streak today, connect with other passionate people, and let music be the protagonist of your daily life.',
+
+    // Cookie Consent
+    'cookie.message': 'We use cookies to improve your experience and analyze traffic.',
+    'cookie.accept': 'Accept',
+    'cookie.decline': 'Decline',
+    'cookie.learn_more': 'Learn more'
   },
 
   es: {
@@ -432,6 +444,8 @@ const translations = {
     'profile.followers': 'Seguidores',
     'profile.following': 'Siguiendo',
     'profile.follow': 'Seguir',
+    'notification.badge_unlocked': '¡Insignia desbloqueada!',
+    'notification.congratulations': '¡Enhorabuena! Has conseguido la insignia:',
     'profile.edit': 'Editar Perfil',
     'profile.badges': 'Insignias y Logros',
     'profile.badges_achievements': 'Insignias y Logros',
@@ -488,6 +502,10 @@ const translations = {
     'chat.bot_name': 'Al, el Bot Musical',
     'chat.online': 'En línea',
     'chat.send': 'Enviar',
+    'chat.assistant_title': 'Experto del Álbum',
+    'chat.ask_curiosity': 'Pregunta una curiosidad...',
+    'chat.error': 'Error al conectar con la IA.',
+    'chat.restriction': 'Solo puedo hablar sobre este álbum y artista. ¡Prueba a preguntar otra cosa!',
 
     'album.listen_spotify': 'Escuchar en Spotify',
     'album.share': 'Compartir',
@@ -673,7 +691,13 @@ const translations = {
     'home.seo_li2': 'Historial Personalizado: Guarda tus álbumes favoritos y construye una biblioteca musical que refleje tus gustos.',
     'home.seo_li3': 'Estadísticas Avanzadas: Visualiza tus minutos escuchados, mantén tu racha diaria y desbloquea insignias exclusivas.',
     'home.seo_li4': 'Comunidad Activa: Sigue a tus amigos, descubre qué están escuchando y participa en debates sobre los álbumes del momento.',
-    'home.seo_footer': 'Tanto si eres un audiófilo experimentado como si solo buscas expandir tus horizons, aquí encontrarás tu próximo álbum favorito. Empieza hoy mismo tu racha, conecta con otros apasionados y deja que la música sea la protagonista de tu día a día.'
+    'home.seo_footer': 'Tanto si eres un audiófilo experimentado como si solo buscas expandir tus horizons, aquí encontrarás tu próximo álbum favorito. Empieza hoy mismo tu racha, conecta con otros apasionados y deja que la música sea la protagonista de tu día a día.',
+
+    // Cookie Consent
+    'cookie.message': 'Usamos cookies para mejorar tu experiencia y analizar el tráfico.',
+    'cookie.accept': 'Aceptar',
+    'cookie.decline': 'Rechazar',
+    'cookie.learn_more': 'Más información'
   }
 };
 

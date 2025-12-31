@@ -17,9 +17,10 @@ import RankingPage from './pages/RankingPage';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 
 // Launch date: January 1, 2026
-const LAUNCH_DATE = new Date('2025-12-01T00:00:00');
+const LAUNCH_DATE = new Date('2026-01-01T00:00:00');
 
 // Developer bypass: allows skipping the Coming Soon page
 // Use ?dev=true in URL to activate, or it persists in localStorage
@@ -53,13 +54,20 @@ const isBeforeLaunch = (): boolean => {
     return new Date() < LAUNCH_DATE;
 };
 
+import CookieConsent from './components/CookieConsent';
+import { useAnalytics } from './hooks/useAnalytics';
+
 const App: React.FC = () => {
+    useAnalytics();
+
     // Check if we're before the launch date (and not in dev mode)
     if (isBeforeLaunch()) {
         return (
             <LanguageProvider>
                 <ThemeProvider>
-                    <ComingSoonPage />
+                    <NotificationProvider>
+                        <ComingSoonPage />
+                    </NotificationProvider>
                 </ThemeProvider>
             </LanguageProvider>
         );
@@ -69,25 +77,28 @@ const App: React.FC = () => {
     return (
         <LanguageProvider>
             <ThemeProvider>
-                <AuthProvider>
-                    <SetUsernameModal />
-                    <HashRouter>
-                        <Routes>
-                            <Route path="/" element={<HomePage />} />
-                            <Route path="/details" element={<DetailsPage />} />
-                            <Route path="/profile" element={<ProfilePage />} />
-                            <Route path="/profile/:userId" element={<ProfilePage />} />
-                            <Route path="/friends" element={<FriendsPage />} />
-                            <Route path="/summary" element={<SummaryPage />} />
-                            <Route path="/calendar" element={<CalendarPage />} />
-                            <Route path="/album/:id" element={<AlbumPage />} />
-                            <Route path="/admin" element={<AdminPage />} />
-                            <Route path="/ranking" element={<RankingPage />} />
-                            <Route path="/faq" element={<FAQPage />} />
+                <NotificationProvider>
+                    <AuthProvider>
+                        <SetUsernameModal />
+                        <HashRouter>
+                            <Routes>
+                                <Route path="/" element={<HomePage />} />
+                                <Route path="/details" element={<DetailsPage />} />
+                                <Route path="/profile" element={<ProfilePage />} />
+                                <Route path="/profile/:userId" element={<ProfilePage />} />
+                                <Route path="/friends" element={<FriendsPage />} />
+                                <Route path="/summary" element={<SummaryPage />} />
+                                <Route path="/calendar" element={<CalendarPage />} />
+                                <Route path="/album/:id" element={<AlbumPage />} />
+                                <Route path="/admin" element={<AdminPage />} />
+                                <Route path="/ranking" element={<RankingPage />} />
+                                <Route path="/faq" element={<FAQPage />} />
 
-                        </Routes>
-                    </HashRouter>
-                </AuthProvider>
+                            </Routes>
+                        </HashRouter>
+                        <CookieConsent />
+                    </AuthProvider>
+                </NotificationProvider>
             </ThemeProvider>
         </LanguageProvider>
     );

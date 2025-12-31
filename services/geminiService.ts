@@ -45,3 +45,50 @@ export const generateAlbumDescription = async (artist: string, album: string, la
   }
 };
 
+
+export const getAlbumChatResponse = async (
+  artist: string,
+  album: string,
+  messages: { role: 'user' | 'model'; parts: { text: string }[] }[],
+  language: string = 'es'
+): Promise<string> => {
+  if (!ai) {
+    return language === 'es' ? "Servicio no disponible." : "Service unavailable.";
+  }
+
+  try {
+    // Construct a prompt that includes the history and system instruction context
+    // because we are using the simple generateContent method.
+    const systemInstruction = language === 'es'
+      ? `Eres un experto musical. Tu misión es responder datos sobre el álbum "${album}" de "${artist}". 
+         RESTRICCIONES CRÍTICAS:
+         1. Mantén un tono apasionado y profesional.
+         2. No des opiniones subjetivas sobre temas políticos, religiosos ni feministas
+         `
+      : `You are a music expert. Your mission is to answer information about the album "${album}" by "${artist}".
+         CRITICAL RESTRICTIONS:
+         1. Maintain a passionate and professional tone.
+         2. Do not give a subjective opinion about political, religious or feminist topics `;
+
+    // Flatten history for the prompt
+    let fullPrompt = `${systemInstruction}\n\n`;
+    messages.forEach(msg => {
+      fullPrompt += `${msg.role === 'user' ? 'User' : 'Model'}: ${msg.parts[0].text}\n`;
+    });
+    fullPrompt += `Model: `;
+
+    console.log(`💬 Sending chat prompt (${fullPrompt.length} chars)`);
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: fullPrompt, // Using prompt construction to avoid SDK ambiguity
+    });
+
+    const text = response.text || "";
+    return text;
+  } catch (error: any) {
+    console.error("❌ Error in chat:", error);
+    return language === 'es' ? "Lo siento, hubo un error." : "Sorry, there was an error.";
+  }
+};
+

@@ -247,7 +247,7 @@ export const markAlbumAsListened = async (userId: string, albumId: string, durat
         badges: userData.badges || []
     } as DBUser;
 
-    await checkAndAwardBadges(userId, updatedUser);
+    return await checkAndAwardBadges(userId, updatedUser);
 };
 
 export const unmarkAlbumAsListened = async (userId: string, albumId: string, durationMs: number) => {
@@ -320,6 +320,17 @@ export const markTrackAsListened = async (userId: string, albumId: string, track
         [`listenedTracks.${albumId}`]: arrayUnion(trackId),
         'stats.minutesListened': (userData.stats?.minutesListened || 0) + minutes
     });
+
+    // Check for badges (minutes can trigger badges)
+    const updatedUser: DBUser = {
+        ...userData,
+        stats: {
+            ...userData.stats,
+            minutesListened: (userData.stats?.minutesListened || 0) + minutes
+        }
+    } as DBUser;
+
+    return await checkAndAwardBadges(userId, updatedUser);
 };
 
 export const unmarkTrackAsListened = async (userId: string, albumId: string, trackId: string, trackDurationMs: number) => {
@@ -462,7 +473,10 @@ export const searchUsers = async (searchTerm: string): Promise<DBUser[]> => {
     const querySnapshot = await getDocs(q);
     const users: DBUser[] = [];
     querySnapshot.forEach((doc) => {
-        users.push(doc.data() as DBUser);
+        const data = doc.data() as DBUser;
+        if (data.email !== 'alvarocv04@gmail.com') {
+            users.push(data);
+        }
     });
 
     return users;
@@ -475,7 +489,10 @@ export const getGlobalLeaderboard = async (): Promise<DBUser[]> => {
 
     const users: DBUser[] = [];
     snapshot.forEach((doc) => {
-        users.push(doc.data() as DBUser);
+        const data = doc.data() as DBUser;
+        if (data.email !== 'alvarocv04@gmail.com') {
+            users.push(data);
+        }
     });
     return users;
 };
@@ -499,10 +516,10 @@ export const getFriendsLeaderboard = async (currentUserId: string): Promise<DBUs
     const userPromises = uniqueIds.map(id => getUserUserData(id));
     const usersData = await Promise.all(userPromises);
 
-    // Filter out nulls and cast
-    const validUsers = usersData.filter(u => u !== null) as DBUser[];
-
     // 3. Sort by Streak Descending
+    const validUsers = usersData.filter(u => u !== null && u.email !== 'alvarocv04@gmail.com') as DBUser[];
+
+    // 4. Sort by Streak Descending
     validUsers.sort((a, b) => (b.stats?.streak || 0) - (a.stats?.streak || 0));
 
     return validUsers;
