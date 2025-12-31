@@ -8,54 +8,16 @@ export const getDailyAlbum = async (): Promise<Album | null> => {
     const dailyRef = doc(db, 'daily_history', today);
 
     try {
-        // 1. Check if today's album already exists
+        // Solo intentamos leer el álbum ya generado por el servidor
         const dailySnap = await getDoc(dailyRef);
+
         if (dailySnap.exists()) {
-            console.log("📅 Album del día recuperado desde caché (daily_history).");
+            console.log("📅 Álbum del día cargado:", dailySnap.data().title);
             return dailySnap.data() as Album;
         }
 
-        console.log("🎲 Seleccionando un nuevo álbum para hoy...");
-
-        // 2. If not, fetch all albums (optimized for small datasets < 1000)
-        // In a larger app, you'd use a cursor or 'random' field index.
-        const albumsRef = collection(db, 'albums');
-        const querySnapshot = await getDocs(albumsRef);
-
-        const candidates: Album[] = [];
-        querySnapshot.forEach((doc) => {
-            const data = doc.data() as Album;
-            // Only pick if not shown recently/ever
-            if (!data.wasShown) {
-                candidates.push(data);
-            }
-        });
-
-        // Fallback: If all albums have been shown, reset pool or pick any.
-        // For now, let's just pick from all if candidates is empty.
-        const pool = candidates.length > 0 ? candidates : querySnapshot.docs.map(d => d.data() as Album);
-
-        if (pool.length === 0) return null;
-
-        // 3. Pick random
-        const randomIndex = Math.floor(Math.random() * pool.length);
-        const selectedAlbum = pool[randomIndex];
-
-        // 4. Save selection for today
-        // We save the whole object to avoid extra reads later
-        await setDoc(dailyRef, selectedAlbum);
-
-        // 5. Mark as shown in the main collection
-        if (selectedAlbum.spotifyId) {
-            const albumDocRef = doc(db, 'albums', selectedAlbum.spotifyId);
-            await updateDoc(albumDocRef, {
-                wasShown: true,
-                lastShownDate: today
-            });
-        }
-
-        console.log(`✅ Nuevo álbum seleccionado: ${selectedAlbum.title}`);
-        return selectedAlbum;
+        console.warn("⚠️ Aún no hay álbum seleccionado para hoy (esperando al servidor/cron).");
+        return null;
 
     } catch (error) {
         console.error("Error getting daily album:", error);
