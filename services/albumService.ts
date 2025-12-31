@@ -1,6 +1,6 @@
 
 import { db } from './firebase';
-import { doc, getDoc, setDoc, collection, getDocs, updateDoc, deleteDoc, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, getDocs, updateDoc, deleteDoc, Timestamp, query, where, orderBy, limit, documentId } from 'firebase/firestore';
 import { Album } from '../types';
 
 export const getDailyAlbum = async (): Promise<Album | null> => {
@@ -84,18 +84,33 @@ export const deleteAlbum = async (albumId: string): Promise<boolean> => {
         return false;
     }
 };
-export const getDailyHistory = async (): Promise<{ date: string; album: Album }[]> => {
+export const getDailyHistory = async (options?: { limit?: number; startDate?: string; endDate?: string }): Promise<{ date: string; album: Album }[]> => {
     const LAUNCH_DATE = '2025-12-01';
     try {
         const historyRef = collection(db, 'daily_history');
-        const snapshot = await getDocs(historyRef);
+        let q;
 
-        const history = snapshot.docs
-            .map(doc => ({
-                date: doc.id,
-                album: doc.data() as Album
-            }))
-            .filter(item => item.date >= LAUNCH_DATE); // Only show history from launch onwards
+        if (options?.startDate && options?.endDate) {
+            // Rango específico (para navegación en calendario)
+            q = query(historyRef,
+                where(documentId(), '>=', options.startDate),
+                where(documentId(), '<=', options.endDate)
+            );
+        } else {
+            // Carga inicial / Lista reciente
+            q = query(historyRef,
+                where(documentId(), '>=', LAUNCH_DATE),
+                orderBy(documentId(), 'desc'),
+                limit(options?.limit || 30)
+            );
+        }
+
+        const snapshot = await getDocs(q);
+
+        const history = snapshot.docs.map(doc => ({
+            date: doc.id,
+            album: doc.data() as Album
+        }));
 
         // Sort by date descending
         return history.sort((a, b) => b.date.localeCompare(a.date));

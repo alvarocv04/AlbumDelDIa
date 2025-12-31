@@ -14,23 +14,50 @@ const CalendarPage: React.FC = () => {
     const [viewDate, setViewDate] = useState(new Date());
 
     useEffect(() => {
-        const fetchHistory = async () => {
+        const fetchMonthHistory = async () => {
+            setIsLoading(true);
             try {
-                const data = await getDailyHistory();
-                // Convert array to record for faster lookup by YYYY-MM-DD
+                // Calculate start and end strings for the current view month
+                const year = viewDate.getFullYear();
+                const month = viewDate.getMonth();
+
+                // Start: 1st of the month
+                // Note: using local time construction to avoid timezone shifts on day boundaries if not careful,
+                // but standard YYYY-MM-DD string construction is safer.
+                const startDate = new Date(year, month, 1);
+                // End: Last day of the month
+                const endDate = new Date(year, month + 1, 0);
+
+                // Manual formatting to ensure YYYY-MM-DD consistent with local view
+                const formatDate = (d: Date) => {
+                    const y = d.getFullYear();
+                    const m = String(d.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.getDate()).padStart(2, '0');
+                    return `${y}-${m}-${day}`;
+                };
+
+                const startStr = formatDate(startDate);
+                const endStr = formatDate(endDate);
+
+                // Fetch only this range
+                const data = await getDailyHistory({ startDate: startStr, endDate: endStr });
+
+                // Merge with existing history (cache)
                 const historyMap: Record<string, Album> = {};
                 data.forEach(item => {
                     historyMap[item.date] = item.album;
                 });
-                setHistory(historyMap);
+
+                setHistory(prev => ({ ...prev, ...historyMap }));
             } catch (error) {
                 console.error(error);
             } finally {
                 setIsLoading(false);
             }
         };
-        fetchHistory();
-    }, []);
+
+        fetchMonthHistory();
+    }, [viewDate]);
 
     const currentYear = viewDate.getFullYear();
     const currentMonth = viewDate.getMonth();
