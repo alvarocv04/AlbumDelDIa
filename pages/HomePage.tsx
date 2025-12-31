@@ -146,8 +146,10 @@ const HomePage: React.FC = () => {
                                     </div>
                                 </div>
                             ) : (
-                                <div className="flex items-center justify-center w-full h-[400px] text-slate-400">
-                                    <p>{t('common.loading')}</p>
+                                <div className="flex flex-col items-center justify-center w-full h-[400px] text-slate-400 gap-4">
+                                    <span className="material-symbols-outlined text-4xl">disc_full</span>
+                                    <p className="text-lg font-medium">{t('home.no_album_today') || "No hay álbum para hoy"}</p>
+                                    <p className="text-sm opacity-70">Fecha: {new Date().toLocaleDateString('es-ES', { timeZone: 'Europe/Madrid' })}</p>
                                 </div>
                             )}
                         </div>

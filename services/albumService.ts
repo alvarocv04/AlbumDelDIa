@@ -4,7 +4,16 @@ import { doc, getDoc, setDoc, collection, getDocs, updateDoc, deleteDoc, Timesta
 import { Album } from '../types';
 
 export const getDailyAlbum = async (): Promise<Album | null> => {
-    const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Madrid' }); // YYYY-MM-DD in Spain
+    // Robust date calculation for Europe/Madrid
+    const getSpainDate = () => {
+        const d = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Madrid" }));
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    const today = getSpainDate(); // YYYY-MM-DD in Spain
     const dailyRef = doc(db, 'daily_history', today);
 
     try {
