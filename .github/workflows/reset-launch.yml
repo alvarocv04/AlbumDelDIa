@@ -21,10 +21,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       
-      - name: Create service account key
-        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > serviceAccountKey.json
-      
       - name: Run reset script
-        run: node scripts/resetAlbums.js
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ./serviceAccountKey.json
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: node scripts/resetAlbums.js

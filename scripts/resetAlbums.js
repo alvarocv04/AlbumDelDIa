@@ -21,19 +21,30 @@ const __dirname = path.dirname(__filename);
 // Configuración de Firebase
 let serviceAccount;
 try {
-    const keyPath = process.env.GOOGLE_APPLICATION_CREDENTIALS || path.join(__dirname, '../serviceAccountKey.json');
-    if (fs.existsSync(keyPath)) {
-        const keyContent = fs.readFileSync(keyPath, 'utf8');
-        serviceAccount = JSON.parse(keyContent);
+    // 1. Intentar cargar desde variable de entorno (CI/CD - GitHub Actions)
+    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+        console.log("🔑 Cargando credenciales desde variable de entorno FIREBASE_SERVICE_ACCOUNT...");
+        serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    }
+    // 2. Intentar cargar desde archivo local (Desarrollo)
+    else {
+        const keyPath = process.env.GOOGLE_APPLICATION_CREDENTIALS || path.join(__dirname, '../serviceAccountKey.json');
+        if (fs.existsSync(keyPath)) {
+            const keyContent = fs.readFileSync(keyPath, 'utf8');
+            serviceAccount = JSON.parse(keyContent);
+        } else {
+            console.error("❌ No se encontró el archivo serviceAccountKey.json ni la variable FIREBASE_SERVICE_ACCOUNT.");
+            process.exit(1);
+        }
+    }
 
+    if (!admin.apps.length) {
         admin.initializeApp({
             credential: admin.credential.cert(serviceAccount)
         });
-        console.log("✅ Firebase inicializado correctamente.");
-    } else {
-        console.error("❌ No se encontró el archivo serviceAccountKey.json.");
-        process.exit(1);
     }
+    console.log("✅ Firebase inicializado correctamente.");
+
 } catch (error) {
     console.error("Error inicializando Firebase:", error.message);
     process.exit(1);
