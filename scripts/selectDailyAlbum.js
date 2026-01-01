@@ -48,30 +48,56 @@ function initializeFirebase() {
 const db = initializeFirebase();
 
 async function selectDailyAlbum() {
-    const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Madrid' }); // YYYY-MM-DD in Spain
-    const dailyRef = db.collection('daily_history').doc(today);
+    // Helper para obtener fecha en Madrid dado un objeto Date
+    const getMadridDateStr = (dateObj) => {
+        return dateObj.toLocaleDateString('sv-SE', { timeZone: 'Europe/Madrid' });
+    };
+
+    const now = new Date();
+    const today = getMadridDateStr(now); // Hoy en Madrid
+
+    // Calcular mañana (sumamos 24h aproximadamente, seguro para cambio de día)
+    const tomorrowDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const tomorrow = getMadridDateStr(tomorrowDate);
+
+    console.log(`\n📅 Iniciando proceso de selección.`);
+    console.log(`   Hoy (Madrid): ${today}`);
+    console.log(`   Mañana (Madrid): ${tomorrow}`);
+
+    let targetDate = today;
+    let dailyRef = db.collection('daily_history').doc(targetDate);
+    let dailySnap = await dailyRef.get();
+
+    // 1. Estrategia "Look Ahead": 
+    // Si ya existe el álbum de hoy, intentamos generar el de mañana con antelación.
+    // Esto permite ejecutar el script a las 22:00 o 23:00 para evitar retrasos de GitHub Actions a media noche.
+    if (dailySnap.exists) {
+        console.log(`✅ El álbum de hoy (${today}) ya está listo: ${dailySnap.data().title}`);
+        console.log(`🔮 Verificando si necesitamos generar el de mañana (${tomorrow})...`);
+
+        targetDate = tomorrow;
+        dailyRef = db.collection('daily_history').doc(targetDate);
+        dailySnap = await dailyRef.get();
+
+        if (dailySnap.exists) {
+            console.log(`✅ El álbum de mañana (${tomorrow}) TAMBIÉN está listo: ${dailySnap.data().title}`);
+            console.log("😴 Nada que hacer por ahora.");
+            return;
+        } else {
+            console.log(`🚀 Generando álbum para MAÑANA (${tomorrow}) con antelación.`);
+        }
+    } else {
+        console.log(`⚠️ No existe álbum para HOY (${today}). Generándolo con prioridad.`);
+    }
+
+    // A partir de aquí, 'targetDate' es la fecha para la que vamos a generar (hoy o mañana)
+    console.log(`🎲 Seleccionando álbum para: ${targetDate}`);
 
     try {
-        console.log(`\n📅 Iniciando selección para el día: ${today}`);
-
-        // 1. Verificar si ya existe álbum para hoy
-        const dailySnap = await dailyRef.get();
-        if (dailySnap.exists) {
-            console.log(`⚠️ Ya existe un álbum seleccionado para hoy (${today}): ${dailySnap.data().title}`);
-            return;
-        }
-
         console.log("🎲 Seleccionando un nuevo álbum...");
 
         // 2. Obtener candidatos (no mostrados previamente)
         const albumsRef = db.collection('albums');
-        // Para conjuntos de datos grandes, esto debería ser más eficiente (ej. con cursor),
-        // pero para < 1000 álbumes, leerlos y filtrar en memoria o consulta simple está bien.
-        // Usamos 'wasShown' == false o no existe.
-
-        // NOTA: Firestore no soporta bien queries con '!=' o 'false' si el campo no existe.
-        // Es mejor traer todos y filtrar en código para este volumen, o asegurarse que todos tienen wasShown: false al inicio.
-        // Asumiremos que el volumen es manejable (< pochi miles).
         const snapshot = await albumsRef.get();
 
         if (snapshot.empty) {
@@ -115,14 +141,14 @@ async function selectDailyAlbum() {
             ...selectedAlbum,
             selectedAt: admin.firestore.FieldValue.serverTimestamp()
         });
-        console.log(`💾 Guardado en daily_history/${today}`);
+        console.log(`💾 Guardado en daily_history/${targetDate}`);
 
         // 5. Marcar como mostrado en la colección principal
         if (selectedAlbum.spotifyId) {
             const albumDocRef = db.collection('albums').doc(selectedAlbum.spotifyId);
             await albumDocRef.update({
                 wasShown: true,
-                lastShownDate: today
+                lastShownDate: targetDate
             });
             console.log(`✅ Actualizado flag wasShown en albums/${selectedAlbum.spotifyId}`);
         } else {
