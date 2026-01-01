@@ -5,7 +5,7 @@ service cloud.firestore {
     
     // Helper function to check if the user is the admin
     function isAdmin() {
-      return request.auth != null && request.auth.token.email == 'alvarocv04@gmail.com';
+      return request.auth != null && request.auth.token.email == 'alvarocastrovalverde@gmail.com';
     }
 
     // Albums: Anyone can read, only admin can write

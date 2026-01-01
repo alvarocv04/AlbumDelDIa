@@ -95,24 +95,15 @@ const AlbumPage: React.FC = () => {
                     console.log('Spotify URL:', data.spotifyUrl);
                     setAlbum(data);
 
-                    // Use cached description or generate new one based on language
-                    const descriptionField = language === 'es' ? 'description_es' : 'description_en';
+                    // Use cached description if available immediately, otherwise fetch (which handles caching)
                     const cachedDescription = language === 'es' ? data.description_es : data.description_en;
 
                     if (cachedDescription) {
-                        console.log(`📖 Using cached description (${language})`);
                         setDescription(cachedDescription);
                     } else {
-                        console.log(`🤖 Generating new description (${language})...`);
-                        generateAlbumDescription(data.artist, data.title, language).then(async (desc) => {
+                        // Load and generate if needed (service handles write-through cache)
+                        generateAlbumDescription(id, data.artist, data.title, language).then((desc) => {
                             setDescription(desc);
-                            // Cache the description in Firestore for future use
-                            try {
-                                await updateDoc(docRef, { [descriptionField]: desc });
-                                console.log(`💾 Description cached in Firestore (${language})`);
-                            } catch (cacheError) {
-                                console.error('Failed to cache description:', cacheError);
-                            }
                         });
                     }
 

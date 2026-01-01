@@ -7,7 +7,12 @@ console.log("🔑 Gemini API Key configured:", apiKey ? `Yes (${apiKey.length} c
 
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
-export const generateAlbumDescription = async (artist: string, album: string, language: string = 'es'): Promise<string> => {
+import { db } from './firebase';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+
+// ... (existing imports and setup)
+
+export const generateAlbumDescription = async (albumId: string, artist: string, album: string, language: string = 'es'): Promise<string> => {
   if (!ai) {
     console.error("❌ Gemini API not initialized - missing VITE_GEMINI_API_KEY in .env");
     return language === 'es'
@@ -16,6 +21,23 @@ export const generateAlbumDescription = async (artist: string, album: string, la
   }
 
   try {
+    const descriptionField = language === 'es' ? 'description_es' : 'description_en';
+
+    // 1. Check Cache in Firestore
+    if (albumId) {
+      const albumRef = doc(db, 'albums', albumId);
+      const albumSnap = await getDoc(albumRef);
+
+      if (albumSnap.exists()) {
+        const data = albumSnap.data();
+        if (data[descriptionField]) {
+          console.log(`📖 Description found in cache (${language})`);
+          return data[descriptionField];
+        }
+      }
+    }
+
+    // 2. Generate content if not in cache
     console.log(`🎵 Generating description for: "${album}" by "${artist}"...`);
 
     const prompt = language === 'es'
@@ -32,6 +54,17 @@ export const generateAlbumDescription = async (artist: string, album: string, la
     });
 
     const text = response.text || "";
+
+    // 3. Save to Cache
+    if (albumId && text) {
+      try {
+        const albumRef = doc(db, 'albums', albumId);
+        await updateDoc(albumRef, { [descriptionField]: text });
+        console.log(`💾 Description cached to Firestore (${language})`);
+      } catch (saveError) {
+        console.error("⚠️ Failed to save description to cache:", saveError);
+      }
+    }
 
     console.log(`✅ Description generated successfully (${text.length} chars)`);
     return text;

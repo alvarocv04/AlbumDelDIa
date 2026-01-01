@@ -3,16 +3,16 @@ import { db } from './firebase';
 import { doc, getDoc, setDoc, collection, getDocs, updateDoc, deleteDoc, Timestamp, query, where, orderBy, limit, documentId } from 'firebase/firestore';
 import { Album } from '../types';
 
-export const getDailyAlbum = async (): Promise<Album | null> => {
-    // Robust date calculation for Europe/Madrid
-    const getSpainDate = () => {
-        const d = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Madrid" }));
-        const year = d.getFullYear();
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    };
+// Helper for robust date calculation in Europe/Madrid
+const getSpainDate = () => {
+    const d = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Madrid" }));
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
 
+export const getDailyAlbum = async (): Promise<Album | null> => {
     const today = getSpainDate(); // YYYY-MM-DD in Spain
     const dailyRef = doc(db, 'daily_history', today);
 
@@ -75,7 +75,9 @@ export const saveAlbum = async (album: Album): Promise<boolean> => {
     try {
         if (!album.spotifyId) throw new Error("Spotify ID is required");
         const albumRef = doc(db, 'albums', album.spotifyId);
-        await setDoc(albumRef, album);
+        // Use merge: true to avoid overwriting fields not present in the 'album' object
+        // (e.g. if we are editing from Admin Panel and the object doesn't have internal flags like wasShown)
+        await setDoc(albumRef, album, { merge: true });
         return true;
     } catch (error) {
         console.error("Error saving album:", error);
@@ -95,20 +97,30 @@ export const deleteAlbum = async (albumId: string): Promise<boolean> => {
 };
 export const getDailyHistory = async (options?: { limit?: number; startDate?: string; endDate?: string }): Promise<{ date: string; album: Album }[]> => {
     const LAUNCH_DATE = '2025-12-01';
+    const today = getSpainDate();
+
     try {
         const historyRef = collection(db, 'daily_history');
         let q;
 
         if (options?.startDate && options?.endDate) {
+            // Si el usuario pide un rango futuro, lo limitamos a hoy
+            let effectiveEndDate = options.endDate;
+            if (effectiveEndDate > today) {
+                effectiveEndDate = today;
+            }
+
             // Rango específico (para navegación en calendario)
             q = query(historyRef,
                 where(documentId(), '>=', options.startDate),
-                where(documentId(), '<=', options.endDate)
+                where(documentId(), '<=', effectiveEndDate)
             );
         } else {
             // Carga inicial / Lista reciente
+            // Importante: Filtramos para no mostrar álbumes futuros (generados por adelantado)
             q = query(historyRef,
                 where(documentId(), '>=', LAUNCH_DATE),
+                where(documentId(), '<=', today),
                 orderBy(documentId(), 'desc'),
                 limit(options?.limit || 30)
             );
