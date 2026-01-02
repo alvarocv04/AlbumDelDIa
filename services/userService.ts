@@ -1,5 +1,5 @@
 import { db } from './firebase';
-import { doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove, collection, deleteDoc, query, where, orderBy, limit, getDocs, startAt, endAt, documentId } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove, collection, deleteDoc, query, where, orderBy, limit, getDocs, startAt, endAt, documentId, increment } from 'firebase/firestore';
 import { User } from 'firebase/auth';
 import { checkAndAwardBadges } from './badgeService';
 import { DBUser } from '../types';
@@ -373,9 +373,6 @@ export const getListenedTracksForAlbum = async (userId: string, albumId: string)
 export const followUser = async (currentUserId: string, targetUserId: string) => {
     if (currentUserId === targetUserId) return;
 
-    const currentUserRef = doc(db, 'users', currentUserId);
-    const targetUserRef = doc(db, 'users', targetUserId);
-
     // Add to following subcollection
     const followingRef = doc(db, 'users', currentUserId, 'following', targetUserId);
     await setDoc(followingRef, {
@@ -390,36 +387,21 @@ export const followUser = async (currentUserId: string, targetUserId: string) =>
         followedAt: new Date().toISOString()
     });
 
-    // Update counts (using increment would be better atomically but simple read/write ok for now)
-    // We will use increment for atomicity if possible, or simple manual update since we don't have atomic increment imported yet
-    // Let's import increment if I can, or just do manual read-update for simplicity in this context without changing imports too much 
-    // actually let's just do manual update to be safe with current imports, or add increment to imports in next step if needed.
-    // For now, simple update.
+    // Update Current User Following Count (Atomic)
+    const currentUserRef = doc(db, 'users', currentUserId);
+    await updateDoc(currentUserRef, {
+        'stats.following': increment(1)
+    });
 
-    // Update Current User Following Count
-    const currentUserSnap = await getDoc(currentUserRef);
-    if (currentUserSnap.exists()) {
-        const data = currentUserSnap.data();
-        await updateDoc(currentUserRef, {
-            'stats.following': (data.stats?.following || 0) + 1
-        });
-    }
-
-    // Update Target User Followers Count
-    const targetUserSnap = await getDoc(targetUserRef);
-    if (targetUserSnap.exists()) {
-        const data = targetUserSnap.data();
-        await updateDoc(targetUserRef, {
-            'stats.followers': (data.stats?.followers || 0) + 1
-        });
-    }
+    // Update Target User Followers Count (Atomic)
+    const targetUserRef = doc(db, 'users', targetUserId);
+    await updateDoc(targetUserRef, {
+        'stats.followers': increment(1)
+    });
 };
 
 export const unfollowUser = async (currentUserId: string, targetUserId: string) => {
     if (currentUserId === targetUserId) return;
-
-    const currentUserRef = doc(db, 'users', currentUserId);
-    const targetUserRef = doc(db, 'users', targetUserId);
 
     // Remove from following subcollection
     const followingRef = doc(db, 'users', currentUserId, 'following', targetUserId);
@@ -429,25 +411,17 @@ export const unfollowUser = async (currentUserId: string, targetUserId: string) 
     const followerRef = doc(db, 'users', targetUserId, 'followers', currentUserId);
     await deleteDoc(followerRef);
 
-    // Update Current User Following Count
-    const currentUserSnap = await getDoc(currentUserRef);
-    if (currentUserSnap.exists()) {
-        const data = currentUserSnap.data();
-        const currentCount = data.stats?.following || 0;
-        await updateDoc(currentUserRef, {
-            'stats.following': Math.max(0, currentCount - 1)
-        });
-    }
+    // Update Current User Following Count (Atomic)
+    const currentUserRef = doc(db, 'users', currentUserId);
+    await updateDoc(currentUserRef, {
+        'stats.following': increment(-1)
+    });
 
-    // Update Target User Followers Count
-    const targetUserSnap = await getDoc(targetUserRef);
-    if (targetUserSnap.exists()) {
-        const data = targetUserSnap.data();
-        const targetCount = data.stats?.followers || 0;
-        await updateDoc(targetUserRef, {
-            'stats.followers': Math.max(0, targetCount - 1)
-        });
-    }
+    // Update Target User Followers Count (Atomic)
+    const targetUserRef = doc(db, 'users', targetUserId);
+    await updateDoc(targetUserRef, {
+        'stats.followers': increment(-1)
+    });
 };
 
 export const checkIsFollowing = async (currentUserId: string, targetUserId: string): Promise<boolean> => {

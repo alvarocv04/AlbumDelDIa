@@ -187,6 +187,20 @@ const ProfilePage: React.FC = () => {
         const newState = !isFollowing;
         setIsFollowing(newState);
 
+        // Optimistic Update for Count (Followers of the user we are viewing)
+        // We are viewing 'targetUserId', so if we follow them, THEIR followers count increases.
+        if (profileData && profileData.stats) {
+            setProfileData((prev: any) => ({
+                ...prev,
+                stats: {
+                    ...prev.stats,
+                    followers: newState
+                        ? (prev.stats.followers || 0) + 1
+                        : Math.max(0, (prev.stats.followers || 0) - 1)
+                }
+            }));
+        }
+
         try {
             if (newState) {
                 await followUser(currentUser.uid, targetUserId);
@@ -195,7 +209,20 @@ const ProfilePage: React.FC = () => {
             }
         } catch (error) {
             console.error("Failed to toggle follow:", error);
-            setIsFollowing(!newState); // Revert
+            setIsFollowing(!newState); // Revert checkbox
+
+            // Revert Count
+            if (profileData && profileData.stats) {
+                setProfileData((prev: any) => ({
+                    ...prev,
+                    stats: {
+                        ...prev.stats,
+                        followers: newState
+                            ? Math.max(0, (prev.stats.followers || 0) - 1)
+                            : (prev.stats.followers || 0) + 1
+                    }
+                }));
+            }
         }
     };
 

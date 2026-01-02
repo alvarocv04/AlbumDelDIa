@@ -92,9 +92,30 @@ const FriendsPage: React.FC = () => {
         e.preventDefault();
         if (!currentUser) return;
 
-        // Optimistic Update
+        // Optimistic Update for Button State
         const isFollowing = followingMap[targetId];
         setFollowingMap(prev => ({ ...prev, [targetId]: !isFollowing }));
+
+        // Optimistic Update for Follower Counts (UI)
+        setUsers(prevUsers => prevUsers.map(user => {
+            if (user.uid === targetId) {
+                const currentFollowers = user.stats?.followers || 0;
+                return {
+                    ...user,
+                    stats: {
+                        ...user.stats,
+                        followers: isFollowing ? Math.max(0, currentFollowers - 1) : currentFollowers + 1,
+                        // Maintain other stats properties safe
+                        following: user.stats?.following || 0,
+                        streak: user.stats?.streak || 0,
+                        minutesListened: user.stats?.minutesListened || 0,
+                        lastListenedDate: user.stats?.lastListenedDate,
+                        albumsListenedToday: user.stats?.albumsListenedToday
+                    }
+                };
+            }
+            return user;
+        }));
 
         try {
             if (isFollowing) {
@@ -106,6 +127,26 @@ const FriendsPage: React.FC = () => {
             console.error("Failed to toggle follow:", error);
             // Revert on error
             setFollowingMap(prev => ({ ...prev, [targetId]: isFollowing }));
+
+            // Revert Count
+            setUsers(prevUsers => prevUsers.map(user => {
+                if (user.uid === targetId) {
+                    const currentFollowers = user.stats?.followers || 0;
+                    return {
+                        ...user,
+                        stats: {
+                            ...user.stats,
+                            followers: isFollowing ? currentFollowers + 1 : Math.max(0, currentFollowers - 1),
+                            following: user.stats?.following || 0,
+                            streak: user.stats?.streak || 0,
+                            minutesListened: user.stats?.minutesListened || 0,
+                            lastListenedDate: user.stats?.lastListenedDate,
+                            albumsListenedToday: user.stats?.albumsListenedToday
+                        }
+                    };
+                }
+                return user;
+            }));
         }
     };
 
